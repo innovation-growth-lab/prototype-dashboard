@@ -1,0 +1,187 @@
+@import "tailwindcss";
+/* For the shadcn components in src/components/ui: their open/close
+   animations, and the data-open: / data-checked: … variants they use. */
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* There's no dark mode. The components carry dark: classes; this keeps them
+   behind a .dark class nothing sets, rather than following the visitor's OS. */
+@custom-variant dark (&:is(.dark *));
+
+/* Brown sets headings and key messages, Muli everything else (IGL brand book).
+   The Brown files are licensed, so not in git. */
+@font-face {
+  font-family: "Brown";
+  src: url("./assets/fonts/Brown-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Brown";
+  src: url("./assets/fonts/Brown-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Muli";
+  src: url("./assets/fonts/Muli-Regular.ttf") format("truetype");
+  font-weight: 300 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Muli";
+  src: url("./assets/fonts/Muli-SemiBold.ttf") format("truetype");
+  font-weight: 500 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Muli";
+  src: url("./assets/fonts/Muli-Bold.ttf") format("truetype");
+  font-weight: 700 800;
+  font-display: swap;
+}
+
+/* The IGL design system's tokens as a Tailwind theme. `static` emits every
+   variable, so inline styles can use var(--color-…) and non-Tailwind code (a
+   canvas, say) can read colours with getComputedStyle. */
+/* biome-ignore format: line-height and size table is cleaner this way */
+@theme static {
+  --font-sans: 'Muli', 'Mulish', 'Century Gothic', sans-serif;
+  --font-display: 'Brown', 'Century Gothic', sans-serif;
+
+  /* Tailwind's sizes, with the IGL system's tighter line heights. */
+  --text-*: initial;
+  --text-2xs: 0.625rem;  --text-2xs--line-height: 1.35;
+  --text-xs: 0.75rem;    --text-xs--line-height: 1.35;
+  --text-sm: 0.875rem;   --text-sm--line-height: 1.35;
+  --text-base: 1rem;     --text-base--line-height: 1.35;
+  --text-lg: 1.125rem;   --text-lg--line-height: 1.35;
+  --text-xl: 1.25rem;    --text-xl--line-height: 1.25;
+  --text-2xl: 1.5rem;    --text-2xl--line-height: 1.2;
+  --text-3xl: 1.875rem;  --text-3xl--line-height: 1.2;
+  --text-4xl: 2.25rem;   --text-4xl--line-height: 1.2;
+  --text-5xl: 2.5rem;    --text-5xl--line-height: 1.2;
+
+  --tracking-label: 0.06em;
+
+  /* The IGL palette (the IGL design system's tokens/colors.css). Tailwind's
+     own colours are switched off, so these are the only ones on offer. */
+  --color-*: initial;
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-dark-blue: #092640;
+  --color-blue: #1f5dad;
+  --color-blue-60: #7dace8;
+  --color-blue-30: #bed5f3;
+  --color-blue-10: #dfeaf9;
+  --color-red: #ff5836;
+  --color-red-80: #ff8268;
+  --color-red-60: #ffac9b;
+  --color-red-40: #ffd5cd;
+  --color-yellow: #fab61b;
+  --color-yellow-80: #fbc854;
+  --color-yellow-60: #fddb8d;
+  --color-yellow-30: #feedc6;
+  --color-green: #00b2a2;
+  --color-green-40: #99e0da;
+  --color-green-20: #ccf0ec;
+  --color-grey: #ebebeb;
+  --color-grey-50: #f7f7f7;
+  --color-grey-150: #e0e0e0;
+  --color-grey-200: #d4d4d4;
+  --color-grey-300: #b4b4b4;
+  --color-grey-500: #767676;
+  --color-grey-700: #4a4a4a;
+
+  --container-page: 1280px;
+
+  /* The identity is flat: no shadows, except the one for overlays (menus,
+     dialogs, popovers), which shadow-md and up all give. */
+  --shadow-menu: 0 8px 24px rgb(9 38 64 / 0.14);
+  --shadow-2xs: 0 0 #0000;
+  --shadow-xs: 0 0 #0000;
+  --shadow-sm: 0 0 #0000;
+  --shadow-md: var(--shadow-menu);
+  --shadow-lg: var(--shadow-menu);
+  --shadow-xl: var(--shadow-menu);
+  --shadow-2xl: var(--shadow-menu);
+}
+
+/* shadcn's colour roles, which the components in src/components/ui use
+   (bg-primary, text-muted-foreground, border-input, ring-ring …), set to the
+   IGL design system's semantic colours. Use these names in components; the
+   IGL palette names above everywhere else. */
+:root {
+  --background: var(--color-white);
+  --foreground: var(--color-dark-blue);
+  --card: var(--color-white);
+  --card-foreground: var(--color-dark-blue);
+  --popover: var(--color-white);
+  --popover-foreground: var(--color-dark-blue);
+  /* Red is the action colour. */
+  --primary: var(--color-red);
+  --primary-foreground: var(--color-white);
+  --secondary: var(--color-grey);
+  --secondary-foreground: var(--color-dark-blue);
+  --muted: var(--color-grey-50);
+  --muted-foreground: var(--color-grey-500);
+  /* Blue carries interactive state: the highlighted option in a menu. */
+  --accent: var(--color-blue-10);
+  --accent-foreground: var(--color-dark-blue);
+  --destructive: var(--color-red);
+  --border: var(--color-grey-200);
+  --input: var(--color-grey-300);
+  /* Focus is a 2px blue ring. */
+  --ring: var(--color-blue);
+}
+
+@theme inline {
+  --font-heading: var(--font-display);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-white font-sans text-base text-dark-blue;
+    text-wrap: pretty;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display font-normal;
+  }
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+  /* The IGL icon set is square-cut: Lucide's icons, squared off. */
+  .lucide {
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: 2px;
+  }
+}
