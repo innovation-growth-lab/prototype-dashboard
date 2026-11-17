@@ -40,8 +40,25 @@ const click = (p, name) =>
 // consent: null leaves the cookie question unanswered, so the banner shows.
 const STATES = {
   'not-found': {path: '/no-such-page'},
-  'cookie-banner': {path: '/', consent: null},
-  'cookie-settings': {path: '/', steps: [(p) => click(p, 'Cookie settings')]},
+  // The dashboard's editor (needs the dev server: the build has no editing).
+  'add-link': {path: '/', steps: [(p) => click(p, 'Add link')]},
+  'edit-link': {
+    path: '/',
+    steps: [(p) => click(p, 'Edit Live prototype in IRM')],
+  },
+  'new-project': {path: '/', steps: [(p) => click(p, 'New project')]},
+  'edit-project': {path: '/', steps: [(p) => click(p, /^Edit project /)]},
+  'delete-project': {
+    path: '/',
+    steps: [
+      (p) => click(p, /^Edit project /),
+      (p) => click(p, 'Delete project'),
+    ],
+  },
+  'move-menu': {
+    path: '/',
+    steps: [(p) => click(p, 'Move Live prototype in IRM')],
+  },
   // The components page's popups, open (when componentsPage is on).
   'components-dialog': {
     path: '/components',
@@ -90,7 +107,7 @@ mkdirSync(out, {recursive: true});
 for (const [name, {path, steps = [], consent = 0}] of Object.entries(SCREENS)) {
   if (only && !only.test(name)) continue;
   const context = await browser.newContext({
-    viewport: {width: 1440, height: 900},
+    viewport: {width: 1280, height: 800},
   });
   const page = await context.newPage();
   await page.clock.setFixedTime(NOW);

@@ -1,9 +1,11 @@
-# Frontend Boilerplate: notes for agents
+# Prototype dashboard: notes for agents
 
-A starting point for IGL's interactive web tools: Vite, React Router and
-Tailwind in the IGL brand, prerendered to static HTML at build time, with
-Google Analytics behind a cookie banner, feature flags, and a deploy script for
-the IGL WordPress server. There is no backend. `README.md` covers set-up for
+One page listing IGL's prototypes by project, built on IGL's frontend
+boilerplate (Vite, React Router, Tailwind in the IGL brand, prerendered to
+static HTML). There is no backend: the content is `src/data/dashboard.json`
+plus images in `public/thumbs/`. It's edited only under `npm run dev`, through
+a dev-server middleware, and the live site (Cloudflare Workers, behind
+Cloudflare Access) is read-only. `README.md` covers set-up and editing for
 people; this file is what you need to work on the code.
 
 Many people working in these repos aren't frontend developers. Explain changes
@@ -34,16 +36,23 @@ fails, fix the code or add an ignore rule; don't skip the hooks with `--no-verif
   serves only prerendered files. A path with a parameter (`/guides/:slug`)
   needs `paths` listing every real URL, or `[]` for pages built from a
   visitor's own data (see Hosting).
-- **Only the IGL palette exists.** Tailwind's own colours are switched off in
-  `src/index.css`, so `bg-gray-100` or `text-slate-600` silently do nothing.
-  Use the IGL names: `dark-blue`, `blue`, `blue-60`/`30`/`10`, `red`,
+- **An adapted IGL look.** This internal tool departs from the IGL brand on
+  purpose, to match its mockup (`design/prototype-dashboard.reference.dc.html`):
+  Mulish throughout with ExtraBold headings, rounded corners (`rounded-lg` on
+  controls and cards, `rounded-xl` on dialogs, `rounded-md` on chips), round
+  icon strokes, and a navy primary button rather than red.
+- **Only the theme's colours exist.** Tailwind's own colours are switched off
+  in `src/index.css`, so `bg-gray-100` or `text-slate-600` silently do
+  nothing. Use the IGL names: `dark-blue`, `blue`, `blue-60`/`30`/`10`, `red`,
   `red-80`/`60`/`40`, `yellow` (`-80`/`60`/`30`), `green` (`-40`/`20`),
-  `grey`, `grey-50`/`150`/`200`/`300`/`500`/`700`, `white`, `black`. shadcn's
-  role names (`primary`, `muted-foreground`, `border`, `input`, `ring` …) also
-  work, set to IGL colours in `src/index.css`. The type scale is Tailwind's
-  sizes (plus `text-2xs`) with tighter line heights. Corners are square, so
-  leave out `rounded-*`; the only curve is the primary button's quarter round,
-  which `Button` draws itself.
+  `grey`, `grey-50`/`150`/`200`/`300`/`500`/`700`, `white`, `black`; the
+  dashboard's neutrals: `ink-700` (body text), `ink-500` (muted text), `line`,
+  `line-soft`, `surface`, `hover`, `navy-hover`, `danger`, `danger-tint`; and
+  the link types' `type-*` inks and tints. shadcn's role names (`primary`,
+  `muted-foreground`, `border`, `input`, `ring` …) also work. Yellow is for
+  the Latest tag and the header's one small square, nothing else. The type
+  scale is Tailwind's sizes (plus `text-2xs`); the mockup's 13, 15 and 22px
+  sizes are written as `text-[15px]` and so on.
 - **Pages render in Node first.** Prerendering runs every page with no
   browser, so anything that reads `window`, `document` or `localStorage` must
   be inside a `useEffect` or an event handler, never in the render itself.
@@ -54,13 +63,28 @@ fails, fix the code or add an ignore rule; don't skip the hooks with `--no-verif
   control of your own. If one's missing, `npx shadcn add <name>` it and restyle
   it to IGL.
 - **Never commit the Brown font files.** Brown is a commercial Lineto typeface
-  and this repo is public; `.gitignore` excludes them. If they're missing,
-  headings fall back to Century Gothic. That's expected, not a bug to fix.
-- **Ask before anything that publishes.** `./deploy.sh`, `git push` and
-  `vercel` all change things other people see. Use the `deploy` skill.
+  and this repo is public; `.gitignore` excludes them. This tool doesn't use
+  Brown (Mulish comes from `@fontsource-variable/mulish`).
+- **Ask before anything that publishes.** A push to `main` deploys the live
+  site, as does `wrangler deploy`. Use the `deploy` skill.
+- **Editing is dev-only.** Anything that edits goes behind
+  `import.meta.env.DEV` (`EDITABLE` in `src/pages/Dashboard.jsx`), so the
+  build leaves it out. The data's rules (ids, types, one latest per type per
+  project, thumbnail paths) live in `src/lib/dashboard.js`, used by both the
+  page and the save middleware: change them there, not in either caller.
+- **Never hand-edit thumbnails into the JSON as base64.** They're files in
+  `public/thumbs/<link-id>.<ext>`.
+- **Say "project", never "section",** in anything a person reads.
 
 ## Where things are
 
+- `src/data/dashboard.json`: the content. `public/thumbs/`: its thumbnails.
+- `src/pages/Dashboard.jsx`: the page, its editor state, drag and drop.
+- `src/components/dashboard/`: project sections and cards, the link and
+  project dialogs, the move menu, the link types' icons and colours.
+- `src/lib/dashboard.js`: the data's shape, validation and edits (pure JS).
+- `src/lib/editor-api.js`, `scripts/dashboard-editor.js`: saving, page and
+  dev-server sides (`POST /__save`, `POST /__thumb`).
 - `src/routes.jsx`: every page, its URL, flag and prerendered paths.
 - `src/pages/`: one file per page.
 - `src/config.js`: site name, nav links, footer, `pageTitle()`.
@@ -74,7 +98,7 @@ fails, fix the code or add an ignore rule; don't skip the hooks with `--no-verif
 - `src/entry-server.jsx`, `scripts/prerender.js`: prerendering; rarely need
   changing.
 - `scripts/screenshots.js`, `scripts/compare.js`: visual checks.
-- `deploy.sh`, `deploy/.htaccess`: deploying to innovationgrowthlab.org.
+- `wrangler.jsonc`, `.github/workflows/deploy.yml`: hosting and deploys.
 
 ## Feature flags
 
@@ -82,8 +106,7 @@ Each flag is `VITE_FLAG_<NAME>=on|off`, with its default in `src/flags.js` and
 a line in `.env.example`. Set them in `.env.local` or for one command
 (`VITE_FLAG_ANALYTICS=off npm run dev`). Any other value fails the build.
 
-Vite fixes flag values at build time, so changing one means rebuilding (on
-Vercel, set it per environment and redeploy).
+Vite fixes flag values at build time, so changing one means rebuilding.
 
 **Off means hidden, not removed.** When a flag is off, what it covers can't be
 seen or reached. Its code is still in the deployed files: the build keeps code
@@ -100,30 +123,29 @@ doesn't keep anything secret.
 - **Part of a page:** `flags.<name> && ...`. That code stays in the main
   bundle, skipped when the flag is off.
 
-`deploy.sh` forces flags for the live site in its `FLAGS` list, whatever the
-`.env` files say, and writes them to `dist/VERSION`. Use that for anything that
-must never be shown on the live site. The `add-flag` skill walks through it.
+`.github/workflows/deploy.yml` sets flags for the live site in its build
+step's `env`, whatever the `.env` files say. Use that for anything that must
+never be shown on the live site. The `add-flag` skill walks through it.
 
 ## Components
 
 `src/components/ui/` holds shadcn/ui components (`components.json`), on
 **Base UI** rather than Radix, restyled to the IGL design system. `/components`
-shows each one; it's behind the `componentsPage` flag, which `deploy.sh` turns
-off for the live site.
+shows each one; it's behind the `componentsPage` flag, which the deploy
+workflow turns off for the live site.
 
 - **Base UI, not Radix.** To make a trigger render as another component, use
   `render`, not `asChild`: `<DialogTrigger render={<Button variant="outline" />}>`.
   Base UI's docs (https://base-ui.com) cover each primitive.
-- **Button.** `variant` is `default` (the red primary, one per page),
+- **Button.** `variant` is `default` (the navy primary, one per screen),
   `secondary`, `ghost`, `link`, `outline` or `destructive`; `size` is `sm`,
   `default`, `lg`, or `icon`/`icon-sm`/`icon-xs`/`icon-lg` for icon-only
   buttons (give those an `aria-label`). `to="/path"` makes it an in-app link
   and `href` an external one.
-- **Icons** come from `lucide-react`, used directly. CSS squares them off to
-  match the IGL set. In a button, put the icon after the label with
-  `data-icon="inline-end"`: `<Button>Next <ArrowRight data-icon="inline-end" /></Button>`.
-- **Labels:** `Label` is set in Brown like the design system's field labels.
-  Beside a checkbox, pass `className="font-sans text-lg"`.
+- **Icons** come from `lucide-react`, used directly, with their round ends.
+  The dashboard puts a + before a button's label, as the mockup does:
+  `<Button><Plus /> Add link</Button>`.
+- **Labels:** `Label` is small and bold (`text-sm font-bold`).
 - **Class names** are combined with `cn`, which lets a `className` override a
   component's own classes. `vite.config.js` points `import {cn} from 'cn'` at
   `src/lib/cn.js`, a copy taught the IGL theme's custom names
@@ -137,14 +159,13 @@ off for the live site.
 A component added with `npx shadcn add <name>` arrives in shadcn's default
 style and needs restyling to match the others:
 
-- Form controls: `h-14`, `px-4`, `text-lg`, `bg-background`, a `border-input`
-  border.
+- Form controls: `h-11`, `px-3`, `text-[15px]`, `rounded-lg`,
+  `bg-background`, a `border-input` border.
 - Focus: `focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring`
   (a 2px blue edge). Invalid: `aria-invalid:border-destructive
   aria-invalid:ring-2 aria-invalid:ring-destructive`.
-- Menu and list items: `py-2 pl-3 text-base`.
-- Square corners: delete every `rounded-*` class (`rounded-lg`, `rounded-md`,
-  `rounded-[4px]` …) rather than overriding it with `rounded-none`.
+- Menu and list items: `rounded-md py-2 pl-3 text-[15px]`; their popup
+  `rounded-lg`.
 - No soft rings (`ring-ring/50`, `ring-foreground/10`: use `ring-border`).
 - Then add it to `src/pages/Components.jsx`, and if it opens something, a
   screen to `STATES` in `scripts/screenshots.js`.
@@ -153,48 +174,26 @@ style and needs restyling to match the others:
 
 `npm run build` prerenders every path from `src/routes.jsx` to
 `dist/<path>/index.html`, plus `dist/404.html` for unknown paths; the browser
-then hydrates them.
+then hydrates them. The dashboard's content is imported at build time, so the
+prerendered page has every card in it.
 
-- **innovationgrowthlab.org (Apache):** `./deploy.sh` builds for `BASE` (set
-  once per project), copies `dist/` to the server over ssh, and tags the
-  release. It deploys only a clean, pushed, untagged commit. `--dry-run` builds
-  and lists what would change without deploying or keeping the tag; `--force`
-  skips the checks and the tag. Without a terminal it can't prompt for the
-  tag, so pass `--tag=v1.2.3`. `deploy/.htaccess` is copied in with `BASE`
-  filled in. The live version is at `<site><BASE>VERSION`.
-- **Vercel (prototype):** `vercel --prod`.
-- **Any other static host:** serve `dist/`, point its 404 page at `404.html`,
-  and for a sub-path build with `VITE_BASE=/sub/path/ npm run build`.
+Cloudflare Workers serves `dist/` as static assets (`wrangler.jsonc`: 404 page,
+trailing-slash redirects, no preview URLs) on its `*.workers.dev` address.
+`.github/workflows/deploy.yml` deploys every push to `main`, using the
+`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets.
+Cloudflare Access, set up in Cloudflare's dashboard rather than in this repo,
+lets in only `@nesta.org.uk` addresses (README, Hosting).
 
-The live site has no fallback to `index.html`: every valid URL must be a
-prerendered file. Pages built from a visitor's own data (their projects, say)
-can't be prerendered, so give them `paths: []`. They then need an SPA fallback,
-which Vercel can do with a `rewrites` rule in `vercel.json` sending everything
-to `/index.html`, but the WordPress server can't. Keep such pages behind a flag
-that `deploy.sh` turns off for the live site.
-
-`VITE_VERSION` (tag and build time) is set by `deploy.sh` and readable as
-`import.meta.env.VITE_VERSION`; dev and Vercel builds leave it unset.
+There's no fallback to `index.html`: every valid URL must be a prerendered
+file.
 
 ## Analytics and cookies
 
-Page views go to the same GA4 property as the WordPress site (`src/lib/ga.js`).
-gtag.js loads only after the visitor accepts the cookie banner, which they can
-reopen from "Cookie settings" in the footer. Reject is as prominent as Accept,
-and rejecting removes GA's cookies. The answer is kept in `localStorage` under
-`SJ_IS_COOKIE_CONSENT` (1 accepted, 0 rejected), the key the WordPress cookie
-banner uses, so a choice on either site holds for both. If the WordPress
-consent plugin changes, update the key.
-
-Nothing is sent from `npm run dev` unless it runs with `VITE_FLAG_GA_DEBUG=on`,
-which also marks every hit `debug_mode` for GA's DebugView; `deploy.sh` forces
-it off. The first page view comes from the gtag.js snippet and later ones from
-GA's "page changes based on browser history events" setting, which must stay
-on.
-
-`VITE_FLAG_ANALYTICS=off` removes GA, the banner and the footer link. Turn it
-off for any tool whose URLs or page titles carry what visitors type in: GA
-reads both.
+Off (`analytics` defaults to off in `src/flags.js`, and the deploy workflow
+forces it off): this is an internal page behind Access. The boilerplate's GA
+and cookie banner code is still there (`src/lib/ga.js`, `CookieBanner`) should
+that change; turning it on brings back the banner and the footer's Cookie
+settings link.
 
 ## Checking visual changes
 
@@ -220,4 +219,4 @@ person the relevant ones.
 ## Skills
 
 `.claude/skills/` has step-by-step recipes for the common requests: `add-page`,
-`add-flag` and `deploy`.
+`add-flag` and `deploy` (Cloudflare).

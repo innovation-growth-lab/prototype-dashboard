@@ -1,0 +1,17 @@
+// Cloudflare Workers, serving dist/ as static files: no Worker code runs.
+// .github/workflows/deploy.yml builds and deploys on every push to main.
+// Who can open it is set in Cloudflare Access, not here (README, Hosting).
+{
+  "name": "prototype-dashboard",
+  "compatibility_date": "2026-11-01",
+  "workers_dev": true,
+  // Preview URLs would be another address to protect: keep them off.
+  "preview_urls": false,
+  "assets": {
+    "directory": "./dist",
+    // Unknown paths get the prerendered not-found page, with a 404.
+    "not_found_handling": "404-page",
+    // /components serves components/index.html by redirecting to /components/.
+    "html_handling": "auto-trailing-slash"
+  }
+}

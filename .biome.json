@@ -20,7 +20,7 @@
     "defaultBranch": "main"
   },
   "files": {
-    "includes": ["**"]
+    "includes": ["**", "!design"]
   },
   "overrides": [
     {

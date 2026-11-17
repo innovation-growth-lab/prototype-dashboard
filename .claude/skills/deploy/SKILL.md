@@ -1,38 +1,28 @@
 ---
 name: deploy
-description: Deploy this site to innovationgrowthlab.org with deploy.sh, or check what's live. Use when someone asks to deploy, release, publish, ship or put the site live, or asks which version is live.
+description: Deploy the prototype dashboard to Cloudflare Workers, or check what's live. Use when someone asks to deploy, release, publish, ship or put the site live, or asks which version is live.
 ---
 
-# Deploy to innovationgrowthlab.org
+# Deploy to Cloudflare Workers
 
-Deploying changes the public site and pushes a git tag, so the person confirms
-before anything is published. Never use `--force` unless they ask for it.
+Pushing to `main` deploys: `.github/workflows/deploy.yml` lints, builds and
+runs `wrangler deploy`. So a push publishes, and the person confirms before
+anything is pushed.
 
-1. **Check it's set up.** `BASE` in `deploy.sh` must be this project's path,
-   not `/tools/CHANGE-ME/`; if it isn't, ask the person for the path. The
-   person needs ssh access with an `igl-website` alias in `~/.ssh/config`.
+1. **Check the change.** `git status` and `git diff`. For content edits, the
+   diff is `src/data/dashboard.json` plus any files in `public/thumbs/`: tell
+   the person, in plain terms, which projects and links changed.
+2. **Check it builds.** `npm run lint` and `npm run build`.
+3. **Confirm.** Say what will go live and ask before committing and pushing.
+   Commit on `main` only if that's how the person works; otherwise a branch
+   and a pull request, which deploys when merged.
+4. **Push**, then watch the run: `gh run watch` (or `gh run list
+   --workflow=deploy.yml`). If it fails at the deploy step with an auth error,
+   the repository secrets need setting (README, Hosting); don't work round it.
+5. **Check it's live.** The address is
+   `https://prototype-dashboard.<account>.workers.dev/`. It's behind
+   Cloudflare Access, so a plain `curl` gets the Access login page (a 302 or
+   403), which itself shows Access is on. Ask the person to open it.
 
-2. **Check the commit.** `deploy.sh` deploys only a clean, pushed, untagged
-   commit. If `git status` shows changes, or HEAD isn't pushed
-   (`git branch -r --contains HEAD` prints nothing), tell the person what's
-   unpushed and ask before committing or pushing.
-
-3. **Work out the tag.** The latest is
-   `git tag --list 'v*' --sort=-v:refname | head -n 1`. Suggest the next minor
-   (`v0.3.0` after `v0.2.4`), or `v0.1.0` for the first deploy. A fix-only
-   release can be the next patch (`v0.2.5`).
-
-4. **Dry run.** `./deploy.sh --dry-run --tag=<tag>`. It builds, lists what would
-   change on the server, and deletes the tag again. If ssh fails, stop: the
-   person's ssh set-up needs fixing, not the script.
-
-5. **Confirm.** Tell the person, in plain terms, which tag this will be, what's
-   new since the last tag (`git log --oneline <last-tag>..HEAD`), any flags
-   forced in `deploy.sh`'s `FLAGS`, and roughly what the dry run would change.
-   Ask them to confirm.
-
-6. **Deploy.** `./deploy.sh --tag=<tag>`. It prints the live URL when done.
-   Check it: `curl <site><BASE>VERSION` should show the new tag.
-
-If the deploy fails partway, the script removes the tag, so it's safe to fix
-the problem and run it again.
+Never run `wrangler deploy` from a laptop unless the person asks: the
+workflow's build is the one with the live site's flags.

@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Edit link</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&amp;family=Mulish:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#ffffff}
+a{color:#092640}a:hover{color:#1f5dad}
+.pd button,.pd input,.pd select{font-family:inherit}
+.pd :focus-visible{outline:2px solid #1f5dad;outline-offset:2px}
+.pd .card-link{text-decoration:none;color:inherit}
+.pd .card-link:hover .thumb{border-color:#7dace8}
+.pd .card-link:hover .card-title{color:#1f5dad}
+.pd .icon-btn:hover,.pd .text-btn:hover{background:#eceff3;color:#092640}
+.pd .btn-primary:hover{background:#123a5e}
+.pd .btn-secondary:hover{background:#f5f7fa}
+.pd .add-tile:hover{border-color:#7dace8;color:#1f5dad;background:#f5f7fa}
+.pd .grip{cursor:grab}
+.pd .grip:active{cursor:grabbing}
+.pd .type-opt:hover{border-color:#7dace8}
+.pd .chev{transition:transform 120ms ease}
+</style>
+</helmet>
+<div class="pd" style="min-height: 100vh; box-sizing: border-box; font-family: Mulish, 'Helvetica Neue', Arial, sans-serif; color: #2f3f52; background: #ffffff">
+<div style="max-width: 1200px; margin: 0 auto; padding: 40px 24px 56px; display: flex; flex-direction: column; gap: 40px">
+
+<header style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 24px; padding-bottom: 24px; border-bottom: 1px solid #d6dce4">
+<div style="display: flex; flex-direction: column; gap: 6px; min-width: 0">
+<div style="display: flex; align-items: center; gap: 8px; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #5b6676">
+<span aria-hidden="true" style="display: inline-block; width: 10px; height: 10px; background: #fab61b"></span>
+<span>Innovation Growth Lab</span>
+</div>
+<h1 style="margin: 0; font-size: 32px; line-height: 1.2; font-weight: 800; color: #092640">Prototype dashboard</h1>
+<p style="margin: 0; font-size: 15px; color: #5b6676">{{summary}} · A listing of live demos, prototypes, designs, and other prototype related resources.</p>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<button type="button" class="btn-secondary" onClick="{{openAddSection}}" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 1px solid #d6dce4; border-radius: 8px; background: #ffffff; color: #092640; font-size: 15px; font-weight: 700; cursor: pointer">
+<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+New project
+</button>
+<button type="button" class="btn-primary" onClick="{{openAddLinkTop}}" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border: 0; border-radius: 8px; background: #092640; color: #ffffff; font-size: 15px; font-weight: 700; cursor: pointer">
+<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+Add link
+</button>
+</div>
+</header>
+
+<main style="display: flex; flex-direction: column; gap: 40px">
+<sc-for list="{{sections}}" as="sec" hint-placeholder-count="3">
+<section aria-labelledby="{{sec.headingId}}" onDragOver="{{sec.onSectionDragOver}}" onDrop="{{sec.onSectionDrop}}" style="{{sec.sectionStyle}}">
+<div onDragOver="{{sec.onHeaderDragOver}}" onDrop="{{sec.onHeaderDrop}}" style="{{sec.headerStyle}}">
+<button type="button" class="icon-btn grip" draggable="true" onDragStart="{{sec.onDragStart}}" onDragEnd="{{sec.onDragEnd}}" aria-label="Drag to reorder {{sec.name}}" style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 40px; border: 0; border-radius: 8px; background: transparent; color: #767676; padding: 0">
+<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><circle cx="9" cy="6" r="1.6"></circle><circle cx="15" cy="6" r="1.6"></circle><circle cx="9" cy="12" r="1.6"></circle><circle cx="15" cy="12" r="1.6"></circle><circle cx="9" cy="18" r="1.6"></circle><circle cx="15" cy="18" r="1.6"></circle></svg>
+</button>
+<button type="button" class="icon-btn" onClick="{{sec.toggle}}" aria-expanded="{{sec.expandedAttr}}" aria-label="{{sec.toggleLabel}}" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border: 0; border-radius: 8px; background: transparent; color: #5b6676; padding: 0; cursor: pointer">
+<svg class="chev" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="{{sec.chevronStyle}}"><path d="M6 9l6 6 6-6"></path></svg>
+</button>
+<h2 id="{{sec.headingId}}" style="margin: 0; font-size: 22px; line-height: 1.25; font-weight: 800; color: #092640">{{sec.name}}</h2>
+<span style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: #5b6676; padding-left: 4px">{{sec.countLabel}}</span>
+<div style="flex: 1 1 24px"></div>
+<button type="button" class="text-btn" onClick="{{sec.rename}}" style="min-height: 40px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: #092640; font-size: 14px; font-weight: 600; cursor: pointer">Rename</button>
+<button type="button" class="text-btn" onClick="{{sec.addLink}}" style="display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: #092640; font-size: 14px; font-weight: 600; cursor: pointer">
+<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+Add link
+</button>
+</div>
+
+<sc-if value="{{sec.expanded}}" hint-placeholder-val="{{ true }}">
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); gap: 32px 24px">
+<sc-for list="{{sec.links}}" as="link" hint-placeholder-count="4">
+<div draggable="true" onDragStart="{{link.onDragStart}}" onDragOver="{{link.onDragOver}}" onDrop="{{link.onDrop}}" onDragEnd="{{link.onDragEnd}}" style="{{link.cardStyle}}">
+<a class="card-link" href="{{link.url}}" target="_blank" rel="noopener noreferrer" style="display: flex; flex-direction: column; gap: 12px">
+<div class="thumb" style="{{link.thumbStyle}}">
+<sc-if value="{{link.hasThumb}}" hint-placeholder-val="{{ false }}">
+<img src="{{link.thumb}}" alt="" style="display: block; width: 100%; height: 100%; object-fit: cover">
+</sc-if>
+<sc-if value="{{link.noThumb}}" hint-placeholder-val="{{ true }}">
+<div style="{{link.placeholderStyle}}">
+<span style="display: inline-flex; width: 36px; height: 36px">
+<sc-if value="{{link.isLive}}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9s1.3-6.4 3.8-9z"></path></svg></sc-if>
+<sc-if value="{{link.isFigmaDesign}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3v18M16 3v18M3 8h18M3 16h18"></path></svg></sc-if>
+<sc-if value="{{link.isFigmaProto}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M10 9.5v5l4.5-2.5z"></path></svg></sc-if>
+<sc-if value="{{link.isMiro}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"></rect><rect x="7" y="7" width="4" height="4"></rect><rect x="13" y="7" width="4" height="4"></rect><rect x="7" y="13" width="4" height="4"></rect></svg></sc-if>
+<sc-if value="{{link.isOther}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"></path><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"></path></svg></sc-if>
+</span>
+<span style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px">{{link.domain}}</span>
+</div>
+</sc-if>
+<sc-if value="{{link.latest}}" hint-placeholder-val="{{ false }}">
+<span style="position: absolute; top: 10px; left: 10px; padding: 3px 8px; border-radius: 4px; background: #fab61b; color: #092640; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase">Latest</span>
+</sc-if>
+</div>
+<div style="display: flex; gap: 10px; align-items: flex-start; padding-right: 44px; min-width: 0">
+<span style="{{link.chipStyle}}">
+<span style="display: inline-flex; width: 16px; height: 16px">
+<sc-if value="{{link.isLive}}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9s1.3-6.4 3.8-9z"></path></svg></sc-if>
+<sc-if value="{{link.isFigmaDesign}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3v18M16 3v18M3 8h18M3 16h18"></path></svg></sc-if>
+<sc-if value="{{link.isFigmaProto}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M10 9.5v5l4.5-2.5z"></path></svg></sc-if>
+<sc-if value="{{link.isMiro}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"></rect><rect x="7" y="7" width="4" height="4"></rect><rect x="13" y="7" width="4" height="4"></rect><rect x="7" y="13" width="4" height="4"></rect></svg></sc-if>
+<sc-if value="{{link.isOther}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"></path><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"></path></svg></sc-if>
+</span>
+</span>
+<span style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+<span class="card-title" style="font-size: 15px; line-height: 1.35; font-weight: 700; color: #092640; overflow-wrap: anywhere">{{link.title}}</span>
+<span style="font-size: 13px; line-height: 1.4; color: #5b6676">{{link.typeLabel}} · {{link.dateLabel}}</span>
+</span>
+</div>
+</a>
+<button type="button" class="icon-btn" onClick="{{link.edit}}" aria-label="Edit {{link.title}}" style="position: absolute; right: -8px; bottom: -4px; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border: 0; border-radius: 8px; background: transparent; color: #5b6676; padding: 0; cursor: pointer">
+<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"></path><path d="M13.5 6.5l4 4"></path></svg>
+</button>
+</div>
+</sc-for>
+<button type="button" class="add-tile" onClick="{{sec.addLink}}" onDragOver="{{sec.onHeaderDragOver}}" onDrop="{{sec.onHeaderDrop}}" style="{{sec.endStyle}}">
+<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+<span>{{sec.endLabel}}</span>
+</button>
+</div>
+</sc-if>
+</section>
+</sc-for>
+
+<sc-if value="{{noSections}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 32px; border: 1.5px dashed #b4b4b4; border-radius: 10px">
+<h2 style="margin: 0; font-size: 20px; font-weight: 800; color: #092640">No projects yet</h2>
+<p style="margin: 0; font-size: 15px; color: #5b6676; max-width: 60ch">Start a project, then add its live prototype, Figma and Miro links.</p>
+<button type="button" class="btn-primary" onClick="{{openAddSection}}" style="min-height: 44px; padding: 0 18px; border: 0; border-radius: 8px; background: #092640; color: #ffffff; font-size: 15px; font-weight: 700; cursor: pointer">New project</button>
+</div>
+</sc-if>
+</main>
+
+<footer style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding: 12px 16px; background: #f5f7fa; border: 1px solid #e8ecf1; border-radius: 8px; font-size: 13px; line-height: 1.5; color: #5b6676">
+<span style="max-width: 80ch"><span style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #2f3f52; margin-right: 8px">Prototype</span>Example content: Figma file names and edit dates come from the IGL Projects folder; live and Miro links are placeholders. Changes reset when the page reloads.</span>
+<button type="button" class="btn-secondary" onClick="{{resetExample}}" style="min-height: 40px; padding: 0 14px; border: 1px solid #d6dce4; border-radius: 8px; background: #ffffff; color: #092640; font-size: 14px; font-weight: 600; cursor: pointer">Reset example</button>
+</footer>
+</div>
+
+<sc-if value="{{showLinkModal}}" hint-placeholder-val="{{ false }}">
+<div style="position: fixed; inset: 0; z-index: 50; box-sizing: border-box; display: flex; justify-content: center; align-items: flex-start; padding: 64px 16px; overflow-y: auto; background: rgba(9, 38, 64, 0.45)">
+<div role="dialog" aria-modal="true" aria-labelledby="link-dialog-title" onKeyDown="{{onDialogKey}}" onPaste="{{onDialogPaste}}" onDragOver="{{dialogDragOver}}" onDrop="{{dialogDrop}}" style="width: 100%; max-width: 600px; background: #ffffff; border-radius: 12px; box-shadow: 0 24px 64px rgba(9, 38, 64, 0.25); display: flex; flex-direction: column">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 24px; border-bottom: 1px solid #e8ecf1">
+<h2 id="link-dialog-title" style="margin: 0; font-size: 20px; font-weight: 800; color: #092640">{{linkModalTitle}}</h2>
+<button type="button" class="icon-btn" onClick="{{closeModal}}" aria-label="Close" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border: 0; border-radius: 8px; background: transparent; color: #5b6676; padding: 0; cursor: pointer">
+<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+</button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 20px; padding: 24px">
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="link-url" style="font-size: 14px; font-weight: 700; color: #092640">Link</label>
+<input id="link-url" type="url" value="{{form.url}}" onChange="{{setUrl}}" placeholder="Paste a Figma, Miro or prototype URL" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border: 1px solid #b4b4b4; border-radius: 8px; font-size: 15px; color: #092640; background: #ffffff">
+</div>
+
+<fieldset style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 8px">
+<legend style="padding: 0; margin-bottom: 8px; font-size: 14px; font-weight: 700; color: #092640">Type</legend>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 8px">
+<sc-for list="{{typeOptions}}" as="t" hint-placeholder-count="5">
+<label class="type-opt" style="{{t.optStyle}}">
+<input type="radio" name="link-type" value="{{t.key}}" checked="{{t.checked}}" onChange="{{t.pick}}" style="margin: 0; accent-color: #092640">
+<span style="{{t.chipStyle}}">
+<span style="display: inline-flex; width: 16px; height: 16px">
+<sc-if value="{{t.isLive}}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9s1.3-6.4 3.8-9z"></path></svg></sc-if>
+<sc-if value="{{t.isFigmaDesign}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3v18M16 3v18M3 8h18M3 16h18"></path></svg></sc-if>
+<sc-if value="{{t.isFigmaProto}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M10 9.5v5l4.5-2.5z"></path></svg></sc-if>
+<sc-if value="{{t.isMiro}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"></rect><rect x="7" y="7" width="4" height="4"></rect><rect x="13" y="7" width="4" height="4"></rect><rect x="7" y="13" width="4" height="4"></rect></svg></sc-if>
+<sc-if value="{{t.isOther}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"></path><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"></path></svg></sc-if>
+</span>
+</span>
+<span>{{t.label}}</span>
+</label>
+</sc-for>
+</div>
+</fieldset>
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="link-title" style="font-size: 14px; font-weight: 700; color: #092640">Title</label>
+<input id="link-title" type="text" value="{{form.title}}" onChange="{{setTitle}}" placeholder="e.g. IRM prototype · 14 Oct" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border: 1px solid #b4b4b4; border-radius: 8px; font-size: 15px; color: #092640; background: #ffffff">
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="link-section" style="font-size: 14px; font-weight: 700; color: #092640">Project</label>
+<select id="link-section" value="{{form.sectionId}}" onChange="{{setSection}}" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border: 1px solid #b4b4b4; border-radius: 8px; font-size: 15px; color: #092640; background: #ffffff">
+<sc-for list="{{sectionOptions}}" as="o" hint-placeholder-count="3">
+<option value="{{o.id}}">{{o.name}}</option>
+</sc-for>
+</select>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="link-date" style="font-size: 14px; font-weight: 700; color: #092640">Last updated</label>
+<input id="link-date" type="date" value="{{form.date}}" onChange="{{setDate}}" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border: 1px solid #b4b4b4; border-radius: 8px; font-size: 15px; color: #092640; background: #ffffff">
+</div>
+</div>
+
+<label for="link-latest" style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer">
+<input id="link-latest" type="checkbox" checked="{{form.latest}}" onChange="{{toggleLatest}}" style="margin: 3px 0 0; width: 18px; height: 18px; accent-color: #092640">
+<span style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 14px; font-weight: 700; color: #092640">Mark as latest</span>
+<span style="font-size: 13px; color: #5b6676">Adds a Latest tag. One link of each type per project can be latest.</span>
+</span>
+</label>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 14px; font-weight: 700; color: #092640">Thumbnail</span>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px">
+<button type="button" onFocus="{{zoneFocus}}" onBlur="{{zoneBlur}}" onDragOver="{{zoneDragOver}}" onDragLeave="{{zoneDragLeave}}" onDrop="{{zoneDrop}}" aria-label="Thumbnail: click, then paste an image, or drop one here" style="{{preview.boxStyle}}">
+<sc-if value="{{preview.hasThumb}}" hint-placeholder-val="{{ false }}">
+<img src="{{form.thumb}}" alt="" style="position: absolute; inset: 0; pointer-events: none; display: block; width: 100%; height: 100%; object-fit: cover">
+</sc-if>
+<sc-if value="{{preview.showHint}}" hint-placeholder-val="{{ true }}">
+<span style="{{preview.hintStyle}}">
+<sc-if value="{{preview.noThumb}}" hint-placeholder-val="{{ true }}">
+<span style="display: inline-flex; width: 24px; height: 24px">
+<sc-if value="{{preview.isLive}}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9s1.3-6.4 3.8-9z"></path></svg></sc-if>
+<sc-if value="{{preview.isFigmaDesign}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3v18M16 3v18M3 8h18M3 16h18"></path></svg></sc-if>
+<sc-if value="{{preview.isFigmaProto}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M10 9.5v5l4.5-2.5z"></path></svg></sc-if>
+<sc-if value="{{preview.isMiro}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"></rect><rect x="7" y="7" width="4" height="4"></rect><rect x="13" y="7" width="4" height="4"></rect><rect x="7" y="13" width="4" height="4"></rect></svg></sc-if>
+<sc-if value="{{preview.isOther}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"></path><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"></path></svg></sc-if>
+</span>
+</sc-if>
+<span style="width: 150px">{{preview.hintText}}</span>
+</span>
+</sc-if>
+</button>
+<div style="display: flex; flex-direction: column; align-items: flex-start; gap: 8px; flex: 1 1 200px">
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<label for="link-thumb" class="btn-secondary" style="display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border: 1px solid #d6dce4; border-radius: 8px; background: #ffffff; color: #092640; font-size: 14px; font-weight: 600; cursor: pointer">
+<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"></path></svg>
+Upload image
+</label>
+<input id="link-thumb" type="file" accept="image/*" onChange="{{uploadThumb}}" style="position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden">
+<sc-if value="{{preview.hasThumb}}" hint-placeholder-val="{{ false }}">
+<button type="button" class="text-btn" onClick="{{clearThumb}}" style="min-height: 40px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: #092640; font-size: 14px; font-weight: 600; cursor: pointer">Remove image</button>
+</sc-if>
+</div>
+<span style="font-size: 13px; color: #5b6676">Without an image, an icon will be shown.</span>
+</div>
+</div>
+</div>
+
+<sc-if value="{{form.hasError}}" hint-placeholder-val="{{ false }}">
+<p role="alert" style="margin: 0; padding: 10px 12px; border-radius: 8px; background: #f8e2db; color: #b8391a; font-size: 14px; font-weight: 600">{{form.error}}</p>
+</sc-if>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 16px 24px; border-top: 1px solid #e8ecf1">
+<sc-if value="{{isEditLink}}" hint-placeholder-val="{{ false }}">
+<button type="button" onClick="{{deleteLink}}" style="{{deleteLinkStyle}}">{{deleteLinkLabel}}</button>
+</sc-if>
+<div style="flex: 1 1 0"></div>
+<button type="button" class="btn-secondary" onClick="{{closeModal}}" style="min-height: 44px; padding: 0 16px; border: 1px solid #d6dce4; border-radius: 8px; background: #ffffff; color: #092640; font-size: 15px; font-weight: 700; cursor: pointer">Cancel</button>
+<button type="button" class="btn-primary" onClick="{{saveLink}}" style="min-height: 44px; padding: 0 20px; border: 0; border-radius: 8px; background: #092640; color: #ffffff; font-size: 15px; font-weight: 700; cursor: pointer">{{saveLinkLabel}}</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showSectionModal}}" hint-placeholder-val="{{ false }}">
+<div style="position: fixed; inset: 0; z-index: 50; box-sizing: border-box; display: flex; justify-content: center; align-items: flex-start; padding: 96px 16px; overflow-y: auto; background: rgba(9, 38, 64, 0.45)">
+<div role="dialog" aria-modal="true" aria-labelledby="section-dialog-title" onKeyDown="{{onDialogKey}}" style="width: 100%; max-width: 480px; background: #ffffff; border-radius: 12px; box-shadow: 0 24px 64px rgba(9, 38, 64, 0.25); display: flex; flex-direction: column">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 24px; border-bottom: 1px solid #e8ecf1">
+<h2 id="section-dialog-title" style="margin: 0; font-size: 20px; font-weight: 800; color: #092640">{{sectionModalTitle}}</h2>
+<button type="button" class="icon-btn" onClick="{{closeModal}}" aria-label="Close" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border: 0; border-radius: 8px; background: transparent; color: #5b6676; padding: 0; cursor: pointer">
+<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+</button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 16px; padding: 24px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="section-name" style="font-size: 14px; font-weight: 700; color: #092640">Project name</label>
+<input id="section-name" type="text" value="{{secForm.name}}" onChange="{{setSecName}}" placeholder="e.g. IRM" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border: 1px solid #b4b4b4; border-radius: 8px; font-size: 15px; color: #092640; background: #ffffff">
+<span style="font-size: 13px; color: #5b6676">{{secForm.helper}}</span>
+</div>
+<sc-if value="{{secForm.hasError}}" hint-placeholder-val="{{ false }}">
+<p role="alert" style="margin: 0; padding: 10px 12px; border-radius: 8px; background: #f8e2db; color: #b8391a; font-size: 14px; font-weight: 600">{{secForm.error}}</p>
+</sc-if>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 16px 24px; border-top: 1px solid #e8ecf1">
+<sc-if value="{{isRenameSection}}" hint-placeholder-val="{{ false }}">
+<button type="button" onClick="{{deleteSection}}" style="{{deleteSectionStyle}}">{{deleteSectionLabel}}</button>
+</sc-if>
+<div style="flex: 1 1 0"></div>
+<button type="button" class="btn-secondary" onClick="{{closeModal}}" style="min-height: 44px; padding: 0 16px; border: 1px solid #d6dce4; border-radius: 8px; background: #ffffff; color: #092640; font-size: 15px; font-weight: 700; cursor: pointer">Cancel</button>
+<button type="button" class="btn-primary" onClick="{{saveSection}}" style="min-height: 44px; padding: 0 20px; border: 0; border-radius: 8px; background: #092640; color: #ffffff; font-size: 15px; font-weight: 700; cursor: pointer">{{saveSectionLabel}}</button>
+</div>
+</div>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"startScreen":{"editor":"enum","options":["none","addLink","editLink","addSection","renameSection"],"default":"none"},"$preview":{"width":1280,"height":1680}}'>
+const START = 'none';
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { sections: this.seed(), drag: null, over: null, modal: null };
+    this.endDrag = () => this.setState({ drag: null, over: null });
+  }
+
+  componentDidMount() { this.openStart(this.props.startScreen ?? START); }
+
+  componentDidUpdate(prev) {
+    if (prev.startScreen !== this.props.startScreen) this.openStart(this.props.startScreen ?? START);
+  }
+
+  seed() {
+    return [
+      { id: 's-irm', name: 'IRM', collapsed: false, links: [
+        { id: 'l-irm-live', type: 'live', title: 'IRM prototype', url: 'https://example.com/irm', date: '2026-11-06', latest: true, thumb: '' },
+        { id: 'l-irm-oct', type: 'live', title: 'IRM prototype · 14 Oct', url: 'https://example.com/irm-2026-10-14', date: '2026-10-14', latest: false, thumb: '' },
+        { id: 'l-irm-old', type: 'figma-design', title: 'IRM (old)', url: 'https://www.figma.com/', date: '2026-11-08', latest: false, thumb: '' },
+        { id: 'l-irm-portfolio', type: 'figma-design', title: 'IRM portfolio', url: 'https://www.figma.com/', date: '2026-09-13', latest: false, thumb: '' },
+        { id: 'l-irm-miro', type: 'miro', title: 'IRM workshop board', url: 'https://miro.com/', date: '2026-10-01', latest: false, thumb: '' }
+      ] },
+      { id: 's-peat', name: 'PEAT', collapsed: false, links: [
+        { id: 'l-peat-live', type: 'live', title: 'PEAT prototype', url: 'https://example.com/peat', date: '2026-11-05', latest: true, thumb: '' },
+        { id: 'l-peat-figma', type: 'figma-design', title: 'PEAT', url: 'https://www.figma.com/', date: '2026-11-11', latest: false, thumb: '' },
+        { id: 'l-peat-proto', type: 'figma-proto', title: 'PEAT clickable flow', url: 'https://www.figma.com/proto/', date: '2026-11-11', latest: false, thumb: '' }
+      ] },
+      { id: 's-kit', name: 'Experimental Kit', collapsed: false, links: [
+        { id: 'l-kit-figma', type: 'figma-design', title: 'Experimental Kit', url: 'https://www.figma.com/', date: '2026-11-13', latest: false, thumb: '' },
+        { id: 'l-kit-proto', type: 'figma-proto', title: 'Experimental Kit prototype', url: 'https://www.figma.com/proto/', date: '2026-11-12', latest: false, thumb: '' }
+      ] }
+    ];
+  }
+
+  types() {
+    return {
+      'live': { label: 'Live prototype', bg: '#ccf0ec', ink: '#00776c' },
+      'figma-design': { label: 'Figma design', bg: '#e8f0fa', ink: '#1f5dad' },
+      'figma-proto': { label: 'Figma prototype', bg: '#eceff3', ink: '#2a4a68' },
+      'miro': { label: 'Miro board', bg: '#feedc6', ink: '#8a5a00' },
+      'other': { label: 'Other', bg: '#f7f7f7', ink: '#4a4a4a' }
+    };
+  }
+
+  fmtDate(iso) {
+    if (!iso) return 'No date';
+    const p = iso.split('-').map(Number);
+    const M = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    if (p.length < 3 || !p[1]) return iso;
+    return p[2] + ' ' + M[p[1] - 1] + ' ' + p[0];
+  }
+
+  domain(url) {
+    try { return new URL(url).hostname.replace(/^www\./, ''); } catch (e) { return url ? url : 'No link yet'; }
+  }
+
+  readImage(file) {
+    if (!file || !/^image\//.test(file.type)) return false;
+    const r = new FileReader();
+    r.onload = () => this.setForm({ thumb: r.result, zoneOver: false });
+    r.readAsDataURL(file);
+    return true;
+  }
+
+  imageFromItems(items) {
+    const list = Array.prototype.slice.call(items || []);
+    const item = list.find((i) => i.kind === 'file' && /^image\//.test(i.type));
+    return item ? item.getAsFile() : null;
+  }
+
+  today() {
+    const d = new Date();
+    const pad = (n) => (n < 10 ? '0' : '') + n;
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  }
+
+  uid() { return 'x' + Math.random().toString(36).slice(2, 9); }
+
+  copySections() { return this.state.sections.map((s) => ({ ...s, links: s.links.slice() })); }
+
+  /* ---------- drag and drop ---------- */
+  isDrag(kind) { const d = this.state.drag; return !!(d && d.kind === kind); }
+
+  setOver(kind, id) {
+    const o = this.state.over;
+    if (!o || o.kind !== kind || o.id !== id) this.setState({ over: { kind, id } });
+  }
+
+  startDrag(e, kind, id) {
+    try { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', id); } catch (err) {}
+    e.stopPropagation();
+    setTimeout(() => this.setState({ drag: { kind, id }, over: null }), 0);
+  }
+
+  moveLink(id, toSecId, beforeId) {
+    if (id === beforeId) { this.endDrag(); return; }
+    const secs = this.copySections();
+    let moved = null; let fromSecId = null; let oi = -1;
+    secs.forEach((s) => {
+      const i = s.links.findIndex((l) => l.id === id);
+      if (i > -1) { moved = s.links[i]; fromSecId = s.id; oi = i; }
+    });
+    const target = secs.find((s) => s.id === toSecId);
+    if (!moved || !target) { this.endDrag(); return; }
+    const ti = beforeId ? target.links.findIndex((l) => l.id === beforeId) : -1;
+    const from = secs.find((s) => s.id === fromSecId);
+    from.links.splice(oi, 1);
+    let idx;
+    if (ti < 0) idx = target.links.length;
+    else if (fromSecId === toSecId && oi < ti) idx = ti;
+    else idx = ti;
+    target.links.splice(Math.min(idx, target.links.length), 0, moved);
+    target.collapsed = false;
+    this.setState({ sections: secs, drag: null, over: null });
+  }
+
+  moveSection(id, beforeId) {
+    if (id === beforeId) { this.endDrag(); return; }
+    const secs = this.copySections();
+    const oi = secs.findIndex((s) => s.id === id);
+    const ti = secs.findIndex((s) => s.id === beforeId);
+    if (oi < 0 || ti < 0) { this.endDrag(); return; }
+    const moved = secs.splice(oi, 1)[0];
+    secs.splice(ti, 0, moved);
+    this.setState({ sections: secs, drag: null, over: null });
+  }
+
+  /* ---------- dialogs ---------- */
+  openStart(screen) {
+    const s = this.state.sections;
+    if (screen === 'addLink') this.openLink(null, s[0] ? s[0].id : '');
+    else if (screen === 'editLink') { if (s[0] && s[0].links[0]) this.openLink(s[0].links[0], s[0].id); }
+    else if (screen === 'addSection') this.openSection(null);
+    else if (screen === 'renameSection') { if (s[0]) this.openSection(s[0]); }
+    else this.setState({ modal: null });
+  }
+
+  blankForm(secId) {
+    return { id: null, origSectionId: null, sectionId: secId || '', type: '', url: '', title: '', date: this.today(), latest: false, thumb: '', zoneFocused: false, zoneOver: false, confirmDelete: false, error: '' };
+  }
+
+  openLink(link, secId) {
+    const first = this.state.sections[0];
+    const form = link
+      ? { id: link.id, origSectionId: secId, sectionId: secId, type: link.type, url: link.url, title: link.title, date: link.date, latest: link.latest, thumb: link.thumb, zoneFocused: false, zoneOver: false, confirmDelete: false, error: '' }
+      : this.blankForm(secId || (first ? first.id : ''));
+    this.setState({ modal: { kind: 'link', mode: link ? 'edit' : 'add', form } });
+  }
+
+  openSection(sec) {
+    this.setState({ modal: { kind: 'section', mode: sec ? 'rename' : 'add', secId: sec ? sec.id : null, name: sec ? sec.name : '', confirmDelete: false, error: '' } });
+  }
+
+  closeModal() { this.setState({ modal: null }); }
+
+  setForm(patch) {
+    this.setState((st) => (st.modal && st.modal.kind === 'link' ? { modal: { ...st.modal, form: { ...st.modal.form, ...patch } } } : null));
+  }
+
+  setSec(patch) {
+    this.setState((st) => (st.modal && st.modal.kind === 'section' ? { modal: { ...st.modal, ...patch } } : null));
+  }
+
+  saveLink() {
+    const f = this.state.modal.form;
+    const title = (f.title || '').trim();
+    const url = (f.url || '').trim();
+    if (!url) { this.setForm({ error: 'Add a link.' }); return; }
+    if (!f.type) { this.setForm({ error: 'Pick a type.' }); return; }
+    if (!title) { this.setForm({ error: 'Add a title.' }); return; }
+    if (!f.sectionId) { this.setForm({ error: 'Create a project first.' }); return; }
+    const link = { id: f.id || this.uid(), type: f.type, title, url, date: f.date, latest: f.latest, thumb: f.thumb };
+    const secs = this.copySections();
+    let placed = false;
+    if (f.id) {
+      const orig = secs.find((s) => s.id === f.origSectionId);
+      if (orig && f.origSectionId === f.sectionId) {
+        const i = orig.links.findIndex((l) => l.id === f.id);
+        if (i > -1) { orig.links[i] = link; placed = true; }
+      } else if (orig) {
+        orig.links = orig.links.filter((l) => l.id !== f.id);
+      }
+    }
+    const target = secs.find((s) => s.id === f.sectionId);
+    if (!target) { this.setForm({ error: 'Pick a project.' }); return; }
+    if (!placed) target.links.push(link);
+    if (link.latest) target.links = target.links.map((l) => (l.id !== link.id && l.type === link.type ? { ...l, latest: false } : l));
+    target.collapsed = false;
+    this.setState({ sections: secs, modal: null });
+  }
+
+  deleteLink() {
+    const f = this.state.modal.form;
+    if (!f.confirmDelete) { this.setForm({ confirmDelete: true }); return; }
+    const secs = this.copySections().map((s) => ({ ...s, links: s.links.filter((l) => l.id !== f.id) }));
+    this.setState({ sections: secs, modal: null });
+  }
+
+  saveSection() {
+    const m = this.state.modal;
+    const name = (m.name || '').trim();
+    if (!name) { this.setSec({ error: 'Add a name.' }); return; }
+    let secs = this.copySections();
+    if (m.mode === 'add') secs.push({ id: this.uid(), name, collapsed: false, links: [] });
+    else secs = secs.map((s) => (s.id === m.secId ? { ...s, name } : s));
+    this.setState({ sections: secs, modal: null });
+  }
+
+  deleteSection() {
+    const m = this.state.modal;
+    if (!m.confirmDelete) { this.setSec({ confirmDelete: true }); return; }
+    this.setState({ sections: this.copySections().filter((s) => s.id !== m.secId), modal: null });
+  }
+
+  uploadThumb(e) {
+    const input = e.target;
+    const file = input.files && input.files[0];
+    if (file) this.readImage(file);
+    input.value = '';
+  }
+
+  /* Paste anywhere in the link dialog. An image on the clipboard fills the
+     thumbnail, unless the paste lands in a text field and the clipboard
+     also carries text: then the text goes in as normal. */
+  pasteImage(e) {
+    const cd = e.clipboardData;
+    if (!cd) return;
+    const file = this.imageFromItems(cd.items);
+    if (!file) return;
+    const tag = (e.target && e.target.tagName) || '';
+    const inTextField = tag === 'INPUT' || tag === 'TEXTAREA';
+    const hasText = !!cd.getData('text/plain');
+    if (inTextField && hasText) return;
+    e.preventDefault();
+    this.readImage(file);
+  }
+
+  dropImage(e) {
+    const dt = e.dataTransfer;
+    const file = dt && dt.files && dt.files[0];
+    if (!file) return;
+    e.preventDefault();
+    if (!this.readImage(file)) this.setForm({ zoneOver: false, error: 'That file isn’t an image.' });
+  }
+
+  /* ---------- view model ---------- */
+  renderVals() {
+    const T = this.types();
+    const st = this.state;
+    const d = st.drag;
+    const o = st.over;
+    const cardDrag = !!(d && d.kind === 'card');
+    const totalLinks = st.sections.reduce((n, s) => n + s.links.length, 0);
+    const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+    const flags = (type) => ({ isLive: type === 'live', isFigmaDesign: type === 'figma-design', isFigmaProto: type === 'figma-proto', isMiro: type === 'miro', isOther: type === 'other' });
+    const chip = (t) => 'flex: none; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 6px; background: ' + t.bg + '; color: ' + t.ink;
+
+    const sections = st.sections.map((sec) => {
+      const draggingSec = !!(d && d.kind === 'section' && d.id === sec.id);
+      const overSec = !!(o && o.kind === 'section' && o.id === sec.id && !draggingSec);
+      const overEnd = !!(o && o.kind === 'end' && o.id === sec.id);
+      const links = sec.links.map((l) => {
+        const t = T[l.type] || T.other;
+        const dragging = !!(d && d.kind === 'card' && d.id === l.id);
+        const over = !!(o && o.kind === 'card' && o.id === l.id && !dragging);
+        return Object.assign({}, l, flags(l.type), {
+          typeLabel: t.label,
+          dateLabel: this.fmtDate(l.date),
+          hasThumb: !!l.thumb,
+          noThumb: !l.thumb,
+          domain: this.domain(l.url),
+          thumbStyle: 'position: relative; aspect-ratio: 16 / 10; border: 1px solid #d6dce4; border-radius: 8px; overflow: hidden; background: ' + t.bg,
+          placeholderStyle: 'position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: ' + t.ink,
+          chipStyle: chip(t),
+          cardStyle: 'position: relative; display: flex; flex-direction: column; min-width: 0; border-radius: 8px;' + (dragging ? ' opacity: 0.4;' : '') + (over ? ' outline: 2px dashed #1f5dad; outline-offset: 6px;' : ''),
+          edit: () => this.openLink(l, sec.id),
+          onDragStart: (e) => this.startDrag(e, 'card', l.id),
+          onDragOver: (e) => { if (!this.isDrag('card')) return; e.preventDefault(); e.stopPropagation(); this.setOver('card', l.id); },
+          onDrop: (e) => { if (!this.isDrag('card')) return; e.preventDefault(); e.stopPropagation(); this.moveLink(this.state.drag.id, sec.id, l.id); },
+          onDragEnd: this.endDrag
+        });
+      });
+      return {
+        id: sec.id,
+        name: sec.name,
+        headingId: 'h-' + sec.id,
+        countLabel: plural(sec.links.length, 'link'),
+        expanded: !sec.collapsed,
+        expandedAttr: sec.collapsed ? 'false' : 'true',
+        toggleLabel: (sec.collapsed ? 'Expand ' : 'Collapse ') + sec.name,
+        chevronStyle: sec.collapsed ? 'transform: rotate(-90deg)' : 'transform: none',
+        links,
+        endLabel: cardDrag ? 'Drop here' : 'Add link',
+        sectionStyle: 'display: flex; flex-direction: column; gap: 16px; border-radius: 10px;' + (draggingSec ? ' opacity: 0.45;' : '') + (overSec ? ' box-shadow: 0 -12px 0 -9px #1f5dad;' : ''),
+        headerStyle: 'display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; min-height: 44px; margin-left: -8px; padding: 0 0 0 4px; border-radius: 8px;' + (overEnd && sec.collapsed ? ' background: #e8f0fa; outline: 2px dashed #1f5dad;' : ''),
+        endStyle: 'display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; aspect-ratio: 16 / 10; box-sizing: border-box; padding: 16px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;' + (overEnd ? ' border: 2px dashed #1f5dad; background: #e8f0fa; color: #1f5dad;' : ' border: 1.5px dashed #b4b4b4; background: #ffffff; color: #5b6676;'),
+        toggle: () => this.setState({ sections: st.sections.map((s) => (s.id === sec.id ? { ...s, collapsed: !s.collapsed } : s)) }),
+        rename: () => this.openSection(sec),
+        addLink: () => this.openLink(null, sec.id),
+        onDragStart: (e) => this.startDrag(e, 'section', sec.id),
+        onDragEnd: this.endDrag,
+        onSectionDragOver: (e) => { if (!this.isDrag('section')) return; e.preventDefault(); this.setOver('section', sec.id); },
+        onSectionDrop: (e) => { if (!this.isDrag('section')) return; e.preventDefault(); this.moveSection(this.state.drag.id, sec.id); },
+        onHeaderDragOver: (e) => { if (!this.isDrag('card')) return; e.preventDefault(); e.stopPropagation(); this.setOver('end', sec.id); },
+        onHeaderDrop: (e) => { if (!this.isDrag('card')) return; e.preventDefault(); e.stopPropagation(); this.moveLink(this.state.drag.id, sec.id, null); }
+      };
+    });
+
+    const m = st.modal;
+    const showLinkModal = !!(m && m.kind === 'link');
+    const showSectionModal = !!(m && m.kind === 'section');
+    const f = showLinkModal ? m.form : this.blankForm('');
+    const ft = T[f.type] || T.other;
+    const hasFiles = (e) => { const dt = e.dataTransfer; return !!(dt && Array.prototype.indexOf.call(dt.types || [], 'Files') > -1); };
+    const zoneActive = !!(f.zoneFocused || f.zoneOver);
+    const zoneBorder = zoneActive ? 'border: 2px solid #1f5dad; background: #e8f0fa;' : (f.thumb ? 'border: 1px solid #d6dce4; background: ' + ft.bg + ';' : 'border: 1.5px dashed #b4b4b4; background: ' + ft.bg + ';');
+
+    const typeOptions = ['live', 'figma-design', 'figma-proto', 'miro', 'other'].map((k) => Object.assign({ key: k, label: T[k].label, checked: f.type === k, chipStyle: chip(T[k]), pick: () => this.setForm({ type: k, error: '' }) }, flags(k), {
+      optStyle: 'display: flex; align-items: center; gap: 10px; min-height: 44px; box-sizing: border-box; padding: 8px 12px; border-radius: 8px; font-size: 14px; font-weight: 600; color: #092640; cursor: pointer;' + (f.type === k ? ' border: 2px solid #092640; background: #f5f7fa;' : ' border: 1px solid #d6dce4; background: #ffffff;')
+    }));
+
+    const secM = showSectionModal ? m : { name: '', mode: 'add', confirmDelete: false, error: '', secId: null };
+    const secObj = st.sections.find((s) => s.id === secM.secId);
+    const secLinkCount = secObj ? secObj.links.length : 0;
+    const dangerQuiet = 'min-height: 44px; padding: 0 14px; border: 0; border-radius: 8px; background: transparent; color: #b8391a; font-size: 15px; font-weight: 700; cursor: pointer';
+    const dangerLoud = 'min-height: 44px; padding: 0 16px; border: 0; border-radius: 8px; background: #b8391a; color: #ffffff; font-size: 15px; font-weight: 700; cursor: pointer';
+
+    return {
+      sections,
+      noSections: st.sections.length === 0,
+      summary: plural(st.sections.length, 'project') + ' · ' + plural(totalLinks, 'link'),
+      openAddSection: () => this.openSection(null),
+      openAddLinkTop: () => this.openLink(null, st.sections[0] ? st.sections[0].id : ''),
+      resetExample: () => this.setState({ sections: this.seed(), modal: null, drag: null, over: null }),
+      closeModal: () => this.closeModal(),
+      onDialogKey: (e) => { if (e.key === 'Escape') this.closeModal(); },
+
+      showLinkModal,
+      isEditLink: showLinkModal && m.mode === 'edit',
+      linkModalTitle: showLinkModal && m.mode === 'edit' ? 'Edit link' : 'Add link',
+      saveLinkLabel: showLinkModal && m.mode === 'edit' ? 'Save changes' : 'Add link',
+      form: Object.assign({}, f, { hasError: !!f.error }),
+      typeOptions,
+      sectionOptions: st.sections.map((s) => ({ id: s.id, name: s.name })),
+      preview: Object.assign({
+        hasThumb: !!f.thumb,
+        noThumb: !f.thumb,
+        showHint: !f.thumb || zoneActive,
+        hintText: f.zoneOver ? 'Drop to use' : (f.zoneFocused ? 'Now paste (⌘V / Ctrl+V)' : 'Drag and drop or click and paste'),
+        boxStyle: 'position: relative; flex: none; display: flex; align-items: center; justify-content: center; width: 200px; aspect-ratio: 16 / 10; box-sizing: border-box; padding: 0; border-radius: 8px; overflow: hidden; font-family: inherit; cursor: pointer; ' + zoneBorder,
+        hintStyle: (f.thumb
+          ? 'position: absolute; inset: 0; background: rgba(232, 240, 250, 0.92);'
+          : 'position: relative;') + ' pointer-events: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-size: 12px; font-weight: 600; color: ' + (zoneActive ? '#1f5dad' : ft.ink)
+      }, flags(f.type)),
+      zoneFocus: () => this.setForm({ zoneFocused: true }),
+      zoneBlur: () => this.setForm({ zoneFocused: false, zoneOver: false }),
+      zoneDragOver: (e) => { if (!hasFiles(e)) return; e.preventDefault(); e.stopPropagation(); if (!this.state.modal.form.zoneOver) this.setForm({ zoneOver: true }); },
+      zoneDragLeave: () => this.setForm({ zoneOver: false }),
+      zoneDrop: (e) => { e.stopPropagation(); this.dropImage(e); },
+      onDialogPaste: (e) => this.pasteImage(e),
+      dialogDragOver: (e) => { if (hasFiles(e)) e.preventDefault(); },
+      dialogDrop: (e) => this.dropImage(e),
+      setUrl: (e) => this.setForm({ url: e.target.value, error: '' }),
+      setTitle: (e) => this.setForm({ title: e.target.value, error: '' }),
+      setSection: (e) => this.setForm({ sectionId: e.target.value }),
+      setDate: (e) => this.setForm({ date: e.target.value }),
+      toggleLatest: (e) => this.setForm({ latest: e.target.checked }),
+      uploadThumb: (e) => this.uploadThumb(e),
+      clearThumb: () => this.setForm({ thumb: '' }),
+      saveLink: () => this.saveLink(),
+      deleteLink: () => this.deleteLink(),
+      deleteLinkLabel: f.confirmDelete ? 'Confirm delete' : 'Delete link',
+      deleteLinkStyle: f.confirmDelete ? dangerLoud : dangerQuiet,
+
+      showSectionModal,
+      isRenameSection: showSectionModal && m.mode === 'rename',
+      sectionModalTitle: showSectionModal && m.mode === 'rename' ? 'Rename project' : 'New project',
+      saveSectionLabel: showSectionModal && m.mode === 'rename' ? 'Save' : 'Create project',
+      secForm: { name: secM.name, error: secM.error, hasError: !!secM.error, helper: secM.mode === 'rename' ? 'Its links stay where they are.' : 'New projects appear at the bottom; drag to reorder.' },
+      setSecName: (e) => this.setSec({ name: e.target.value, error: '' }),
+      saveSection: () => this.saveSection(),
+      deleteSection: () => this.deleteSection(),
+      deleteSectionLabel: secM.confirmDelete ? (secLinkCount ? 'Delete project and ' + plural(secLinkCount, 'link') : 'Confirm delete') : 'Delete project',
+      deleteSectionStyle: secM.confirmDelete ? dangerLoud : dangerQuiet
+    };
+  }
+}
+</script>
+</body>
+</html>

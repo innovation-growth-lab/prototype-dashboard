@@ -1,108 +1,115 @@
-# Frontend Boilerplate
+# Prototype dashboard
 
-A starting point IGL's interactive web tools, using Vite, React Router
-and Tailwind in the IGL brand, prerendering to static HTML at build time,
-with Google Analytics behind a cookie banner, feature flags, a deploy
-script for the IGL WordPress server, and basic snapshotting.
+One page listing IGL's prototypes by project: live prototypes, dated
+snapshots, Figma designs and prototypes, Miro boards and other links, each as
+a card that opens in a new tab. Built on IGL's frontend boilerplate (Vite,
+React Router, Tailwind), styled after IGL's brand but rounder and with
+Mulish throughout (see `design/` for the mockup), prerendered to static HTML, hosted
+on Cloudflare Workers behind Cloudflare Access.
 
-There is no backend; everything builds to static HTML to host anywhere.
-
-## Starting a project
-
-1. Copy this repo, then set `name` in `package.json`.
-2. `src/config.js`: the tool's name, nav links, footer and the "by Nesta"
-   switch.
-3. `index.html`: change the fallback `<title>`.
-4. `deploy.sh`: set `BASE`, the URL path on innovationgrowthlab.org. The
-   script won't run until this is changed.
-5. Replace `src/pages/Home.jsx`'s content and add your own pages.
+There is no backend. The content is one file, `src/data/dashboard.json`, and
+the thumbnails are images in `public/thumbs/`. The live site is read-only.
 
 ## Running it
 
-On first run,
-
 ```sh
 npm install
-```
-
-and add the Brown font files, which aren't in the repo due to licensing.
-
-then,
-
-```sh
-npm run dev        # http://localhost:5173
-npm run build      # static site in dist/
+npm run dev        # http://localhost:5173, with the editor
+npm run build      # static site in dist/, read-only
 npm run preview    # serve dist/ locally
 npm run lint       # Biome; lefthook also formats on commit and lints on push
 ```
 
-Pages are listed in `src/routes.jsx`. `AGENTS.md` says where everything else
-is and how to check visual changes with before/after screenshots.
+## Editing content
+
+Editing only exists under `npm run dev`. Open http://localhost:5173 and:
+
+- **Add link** (top right, or on a project) opens the link dialog: the link,
+  its type, a title (optional: without one, the card is named by its type,
+  "Figma design"), its project, the date it was last updated (today unless
+  you change it), whether it's the latest, and a thumbnail.
+- **Thumbnails:** upload one, drop an image on the box, or click the box and
+  paste. Pasting an image anywhere in the dialog works too (pasting text into
+  a field still pastes the text). Images are shrunk to 1200px wide and saved
+  as WebP in `public/thumbs/<link-id>.webp`. Without one, the card shows the
+  type's icon on its colour.
+- **Latest:** one link of each type per project can carry the Latest tag.
+  Marking one takes the tag from the others.
+- **Reorder** by dragging a card (within a project or into another) or a
+  project's grip handle (⋮⋮). From the keyboard, use the move menu (⇅) on a
+  card or a project heading.
+- **Projects:** New project, and Edit on each project: its name, and an
+  optional description by the name. Edit is also where to delete
+  one (it asks first, and says how many links go with it).
+- **Delete a link** from its edit dialog; its thumbnail file goes too.
+
+Every change is written straight to `src/data/dashboard.json` (and
+`public/thumbs/`) by the dev server, checked against the same rules the page
+uses (`src/lib/dashboard.js`). Then:
+
+```sh
+git diff                  # see what changed
+git commit -am "Add PEAT snapshot"   # add new thumbnails with git add
+git push                  # deploys (see Hosting)
+```
+
+Which projects a visitor has collapsed is kept in their own browser, not in
+the file.
+
+## Hosting
+
+Cloudflare Workers serves `dist/` as static files (`wrangler.jsonc`), at
+`https://prototype-dashboard.<account>.workers.dev/`. Every push to `main`
+deploys it (`.github/workflows/deploy.yml`): lint, build with the components
+page and analytics off, then `wrangler deploy`.
+
+### Setting it up (once)
+
+1. **Cloudflare account.** Any free account works; it doesn't need Nesta's
+   Cloudflare or DNS. Note the **Account ID** (Workers & Pages overview,
+   right-hand side).
+2. **API token.** My Profile → API Tokens → Create Token → the "Edit
+   Cloudflare Workers" template, limited to that account.
+3. **GitHub secrets.** In this repo's Settings → Secrets and variables →
+   Actions, add `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
+4. **First deploy.** Push to `main` (or run the workflow by hand from the
+   Actions tab). The worker appears in Workers & Pages.
+5. **Cloudflare Access.** In the worker's Settings → Domains & Routes, turn on
+   Cloudflare Access for the `workers.dev` route. That creates an Access
+   application covering all traffic. Then in Zero Trust → Access →
+   Applications, edit its policy:
+   - Action **Allow**, Include **Emails ending in** `@nesta.org.uk`.
+   - Login method: **One-time PIN** (on by default): a code is emailed to
+     the address entered.
+
+   Zero Trust asks for a team name and a plan the first time; the free plan
+   covers up to 50 users. Check by opening the address in a private window:
+   you should get the Access login page, and a non-Nesta address should get
+   no code.
+6. **Later, Google login.** Zero Trust → Settings → Authentication → add
+   Google as a login method, then enable it on the application.
+
+Cloudflare's dashboard moves things around now and then; the names above are
+what to look for.
+
+## Later
+
+The data and its rules are kept separate from the page so these can be added
+without reworking it:
+
+- **Editing from the live site:** commit `src/data/dashboard.json` (and
+  thumbnails) through the GitHub API with a fine-grained token scoped to this
+  repo. The push deploys as above. `validateDashboard` in
+  `src/lib/dashboard.js` is the check to run before committing.
+- **`npm run thumbs`:** Playwright screenshots of every `live` link into
+  `public/thumbs/<link-id>.webp`. Figma thumbnails stay manual (paste or drop).
 
 ## Feature flags
 
 Each flag is `VITE_FLAG_<NAME>=on|off`, with its default in `src/flags.js` and
-a line in `.env.example`. Set in `.env.local`, or locally:
+a line in `.env.example`. Analytics is off by default: the dashboard is an
+internal page, and its visits aren't IGL website traffic. The deploy workflow
+sets the live site's flags itself.
 
-```
-VITE_FLAG_ANALYTICS=off npm run dev
-```
-
-Vite fixes flags into the build. When a flag is off, what it covers can't be
-seen or reached: a flagged page's URL is the not-found page, and flagged parts
-of a page don't render.
-
-Its code is still in the deployed files, though, where anyone reading the
-site's JavaScript can find it. A flag hides work in progress; it doesn't keep
-anything secret. (A flagged page's code is in a separate file the site never
-requests, so visitors at least don't download it.)
-
-`deploy.sh` has overrides as a safeguard for the live site in its `FLAGS` list
-which overrule `.env`. You can see the flags for the build in `dist/VERSION`.
-
-## Hosting
-
-`npm run build` renders every page in `src/routes.jsx` to static HTML so crawlers and
-first paint get real content, and the browser then hydrates it. Unknown paths
-get `dist/404.html`. Pages render in Node first, so anything that touches
-`window`, `document` or `localStorage` must stay inside an effect or event
-handler.
-
-- **innovationgrowthlab.org (Apache):** `./deploy.sh` builds for `BASE`, copies
-  `dist/` to the server over ssh (`igl-website` alias in `~/.ssh/config`), and
-  tags the release. It deploys only a clean, pushed, untagged commit, and
-  suggests the next `v*` tag. `--dry-run` builds and lists what would change,
-  without deploying or keeping the tag. `--force` skips the checks and the tag.
-
-  To check the live version,
-
-  ```sh
-  curl https://www.innovationgrowthlab.org/tools/<path>/VERSION`.
-  ```
-
-- **Vercel (prototype):** works as is with `vercel --prod`.
-- **Any other static host:** serve `dist/`, point its 404 page at `404.html`,
-  and for a sub-path build with `VITE_BASE=/sub/path/ npm run build`.
-
-The deployed build has no fallback to `index.html`, so every valid URL must be
-a prerendered file. If a project adds pages made from a visitor's own data
-(like user-named projects), those can't be prerendered. They need
-`dist/index.html` as an SPA fallback, which Vercel can do with a `rewrites` rule
-in `vercel.json` but the WordPress server can't. You can instead keep those
-pages behind a flag that `deploy.sh` turns off.
-
-## Analytics and cookies
-
-Page views go to the same GA4 property as the WordPress site (`src/lib/ga.js`).
-gtag.js loads only after the visitor accepts the `CookieBanner`; rejecting
-removes GA's cookies. The answer is kept in `localStorage` under
-`SJ_IS_COOKIE_CONSENT`, the same key the WordPress cookie banner uses, so they
-stay in sync.
-
-Nothing is sent from `npm run dev` unless it is run as
-`VITE_FLAG_GA_DEBUG=on npm run dev`. That flag also marks every hit
-`debug_mode` so it shows in DebugView; `deploy.sh` forces it off. Later page
-views come from GA's "page changes based on browser history events" setting
-(keep it on).
-
-`VITE_FLAG_ANALYTICS=off` removes GA, the banner and the footer link.
+`AGENTS.md` has the rest: where things are, the IGL palette and components,
+and how to check visual changes with before/after screenshots.

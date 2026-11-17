@@ -1,27 +1,11 @@
 // Site-wide settings and copy that isn't part of a page. Most of a new
-// project's set-up happens here, plus <title> in index.html and BASE in
-// deploy.sh.
+// project's set-up happens here, plus <title> in index.html.
 
-// The tool's name: nav, page titles and the not-found page.
-export const SITE_NAME = 'Frontend Boilerplate';
+// The tool's name: page titles and the not-found page.
+export const SITE_NAME = 'Prototype dashboard';
 
-// Show the "by Nesta" logo lockups. Off: IGL on its own.
-export const NESTA_ENDORSED = true;
-
-// `to` is a path in the app; a hash (/#about) scrolls to that element's id.
-export const NAV_LINKS = [{label: 'About', to: '/#about'}];
-
+// The footer, which shows only when analytics is on (src/components/Layout.jsx).
 export const FOOTER = {
-  tagline: 'Creating strong foundations for policy change',
-  description:
-    'IGL brings together researchers, policymakers and practitioners to test what works in innovation, entrepreneurship and growth policy, and to make the results usable.',
-  // Add an `href` to make a link live.
-  links: [
-    {label: 'About'},
-    {label: 'Privacy notice'},
-    {label: 'Terms of use'},
-    {label: 'Contact us'},
-  ],
   legal:
     'Innovation Growth Lab is a global initiative led by Nesta, a registered charity in England and Wales (1144091) and Scotland (SC042833).',
 };

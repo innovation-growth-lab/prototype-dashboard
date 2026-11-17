@@ -3,51 +3,25 @@
    animations, and the data-open: / data-checked: … variants they use. */
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+/* IBM Plex Mono for small labels (link counts, dates, the Latest tag). */
+@import "@fontsource/ibm-plex-mono/500.css";
+/* Mulish (the brand's Muli, renamed) sets everything, headings included: the
+   variable font has the ExtraBold the dashboard's headings use, which Brown
+   doesn't. An internal tool, so it departs from the brand book here. */
+@import "@fontsource-variable/mulish";
 
 /* There's no dark mode. The components carry dark: classes; this keeps them
    behind a .dark class nothing sets, rather than following the visitor's OS. */
 @custom-variant dark (&:is(.dark *));
-
-/* Brown sets headings and key messages, Muli everything else (IGL brand book).
-   The Brown files are licensed, so not in git. */
-@font-face {
-  font-family: "Brown";
-  src: url("./assets/fonts/Brown-Regular.ttf") format("truetype");
-  font-weight: 400;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Brown";
-  src: url("./assets/fonts/Brown-Bold.ttf") format("truetype");
-  font-weight: 700;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Muli";
-  src: url("./assets/fonts/Muli-Regular.ttf") format("truetype");
-  font-weight: 300 400;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Muli";
-  src: url("./assets/fonts/Muli-SemiBold.ttf") format("truetype");
-  font-weight: 500 600;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Muli";
-  src: url("./assets/fonts/Muli-Bold.ttf") format("truetype");
-  font-weight: 700 800;
-  font-display: swap;
-}
 
 /* The IGL design system's tokens as a Tailwind theme. `static` emits every
    variable, so inline styles can use var(--color-…) and non-Tailwind code (a
    canvas, say) can read colours with getComputedStyle. */
 /* biome-ignore format: line-height and size table is cleaner this way */
 @theme static {
-  --font-sans: 'Muli', 'Mulish', 'Century Gothic', sans-serif;
-  --font-display: 'Brown', 'Century Gothic', sans-serif;
+  --font-sans: 'Mulish Variable', 'Mulish', 'Helvetica Neue', Arial, sans-serif;
+  --font-display: var(--font-sans);
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 
   /* Tailwind's sizes, with the IGL system's tighter line heights. */
   --text-*: initial;
@@ -93,6 +67,33 @@
   --color-grey-500: #767676;
   --color-grey-700: #4a4a4a;
 
+  /* The dashboard's link types: a tint for the card and an ink for its icon
+     (src/components/dashboard/types.js). Tints are IGL's where it has one;
+     the inks are darkened so they pass 4.5:1 on their tint. */
+  --color-type-live: #00776c;
+  --color-type-live-tint: #ccf0ec;
+  --color-type-design: #1f5dad;
+  --color-type-design-tint: #e8f0fa;
+  --color-type-proto: #2a4a68;
+  --color-type-proto-tint: #eceff3;
+  --color-type-miro: #8a5a00;
+  --color-type-miro-tint: #feedc6;
+  --color-type-other: #4a4a4a;
+  --color-type-other-tint: #f7f7f7;
+
+  /* The dashboard's neutrals: cooler than IGL's greys, for a quiet, Figma-like
+     page. Text, muted text, lines, a soft line, a panel, a hover. */
+  --color-ink-700: #2f3f52;
+  --color-ink-500: #5b6676;
+  --color-line: #d6dce4;
+  --color-line-soft: #e8ecf1;
+  --color-surface: #f5f7fa;
+  --color-hover: #eceff3;
+  --color-navy-hover: #123a5e;
+  /* Deleting: a red that passes 4.5:1 as text, and its tint. */
+  --color-danger: #b8391a;
+  --color-danger-tint: #f8e2db;
+
   --container-page: 1280px;
 
   /* The identity is flat: no shadows, except the one for overlays (menus,
@@ -118,18 +119,18 @@
   --card-foreground: var(--color-dark-blue);
   --popover: var(--color-white);
   --popover-foreground: var(--color-dark-blue);
-  /* Red is the action colour. */
-  --primary: var(--color-red);
+  /* Navy is the action colour here (the brand's is red). */
+  --primary: var(--color-dark-blue);
   --primary-foreground: var(--color-white);
-  --secondary: var(--color-grey);
+  --secondary: var(--color-hover);
   --secondary-foreground: var(--color-dark-blue);
-  --muted: var(--color-grey-50);
-  --muted-foreground: var(--color-grey-500);
+  --muted: var(--color-surface);
+  --muted-foreground: var(--color-ink-500);
   /* Blue carries interactive state: the highlighted option in a menu. */
   --accent: var(--color-blue-10);
   --accent-foreground: var(--color-dark-blue);
-  --destructive: var(--color-red);
-  --border: var(--color-grey-200);
+  --destructive: var(--color-danger);
+  --border: var(--color-line);
   --input: var(--color-grey-300);
   /* Focus is a 2px blue ring. */
   --ring: var(--color-blue);
@@ -169,17 +170,14 @@
   h2,
   h3,
   h4 {
-    @apply font-display font-normal;
+    @apply font-display font-extrabold text-dark-blue;
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]) {
     cursor: pointer;
   }
-  /* The IGL icon set is square-cut: Lucide's icons, squared off. */
-  .lucide {
-    stroke-linecap: square;
-    stroke-linejoin: miter;
-  }
+  /* Lucide's icons keep their round ends here (the IGL set squares them
+     off), to match the dashboard's rounded corners. */
   :focus-visible {
     outline: 2px solid var(--color-blue);
     outline-offset: 2px;

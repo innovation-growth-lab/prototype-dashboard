@@ -31,8 +31,8 @@ description: Add a feature flag, to switch a page or feature on or off per build
      `NAV_LINKS` in `src/config.js`.
 
 5. **The live site.** If it must be forced there, add
-   `VITE_FLAG_CASE_STUDIES=off` (or `on`) to `FLAGS` in `deploy.sh`, with a
-   comment saying why.
+   `VITE_FLAG_CASE_STUDIES: 'off'` (or `'on'`) to the build step's `env` in
+   `.github/workflows/deploy.yml`, with a comment saying why.
 
 6. **Check both ways.** Build and screenshot with the flag on and off
    (`VITE_FLAG_CASE_STUDIES=on npm run build`, and the same for

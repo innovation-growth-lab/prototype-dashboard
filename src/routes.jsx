@@ -1,6 +1,6 @@
 import {lazy} from 'react';
 import {flags} from './flags.js';
-import Home from './pages/Home.jsx';
+import Dashboard from './pages/Dashboard.jsx';
 
 // Every page in the app, in one list. App.jsx gives each its URL,
 // entry-server.jsx prerenders it to static HTML (the deployed host serves only
@@ -17,7 +17,8 @@ import Home from './pages/Home.jsx';
 //   paths    Needed when `path` has a parameter: every real URL to prerender,
 //            or [] for pages made from a visitor's own data, which can't be.
 const PAGES = [
-  {path: '/', element: <Home />},
+  // The dashboard: every project and its links. Editable under `npm run dev`.
+  {path: '/', element: <Dashboard />},
   {
     path: '/components',
     load: () => import('./pages/Components.jsx'),
