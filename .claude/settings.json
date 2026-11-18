@@ -17,6 +17,13 @@
       "Bash(npx shadcn docs:*)",
       "Bash(npx shadcn search:*)"
     ],
-    "ask": ["Bash(git push:*)", "Bash(wrangler:*)", "Bash(npx wrangler:*)"]
+    "ask": [
+      "Bash(./deploy.sh:*)",
+      "Bash(zsh deploy.sh:*)",
+      "Bash(zsh ./deploy.sh:*)",
+      "Bash(rsync:*)",
+      "Bash(ssh igl-website:*)",
+      "Bash(git push:*)"
+    ]
   }
 }

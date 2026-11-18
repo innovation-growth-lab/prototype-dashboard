@@ -50,7 +50,7 @@ import {pageTitle} from '../config.js';
 
 // Every component in src/components/ui, in its IGL styling: a reference when
 // building pages, and a screen to check after restyling one. Behind the
-// componentsPage flag, which the deploy workflow turns off for the live site.
+// componentsPage flag, which deploy.sh turns off for the live site.
 
 const COUNTRIES = [
   'Austria',

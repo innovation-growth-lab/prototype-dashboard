@@ -4,8 +4,8 @@ One page listing IGL's prototypes by project: live prototypes, dated
 snapshots, Figma designs and prototypes, Miro boards and other links, each as
 a card that opens in a new tab. Built on IGL's frontend boilerplate (Vite,
 React Router, Tailwind), styled after IGL's brand but rounder and with
-Mulish throughout (see `design/` for the mockup), prerendered to static HTML, hosted
-on Cloudflare Workers behind Cloudflare Access.
+Mulish throughout (see `design/` for the mockup), prerendered to static HTML,
+and hosted at https://www.innovationgrowthlab.org/tools/prototypes/.
 
 There is no backend. The content is one file, `src/data/dashboard.json`, and
 the thumbnails are images in `public/thumbs/`. The live site is read-only.
@@ -50,7 +50,8 @@ uses (`src/lib/dashboard.js`). Then:
 ```sh
 git diff                  # see what changed
 git commit -am "Add PEAT snapshot"   # add new thumbnails with git add
-git push                  # deploys (see Hosting)
+git push
+./deploy.sh               # puts it live (see Hosting)
 ```
 
 Which projects a visitor has collapsed is kept in their own browser, not in
@@ -58,48 +59,46 @@ the file.
 
 ## Hosting
 
-Cloudflare Workers serves `dist/` as static files (`wrangler.jsonc`), at
-`https://prototype-dashboard.<account>.workers.dev/`. Every push to `main`
-deploys it (`.github/workflows/deploy.yml`): lint, build with the components
-page and analytics off, then `wrangler deploy`.
+The site lives on the IGL WordPress server (Apache) at
+https://www.innovationgrowthlab.org/tools/prototypes/. Pushing to GitHub
+doesn't deploy; `./deploy.sh` does:
 
-### Setting it up (once)
+```sh
+./deploy.sh --dry-run    # build, and list what would change on the server
+./deploy.sh              # build, copy dist/ to the server, tag the release
+```
 
-1. **Cloudflare account.** Any free account works; it doesn't need Nesta's
-   Cloudflare or DNS. Note the **Account ID** (Workers & Pages overview,
-   right-hand side).
-2. **API token.** My Profile → API Tokens → Create Token → the "Edit
-   Cloudflare Workers" template, limited to that account.
-3. **GitHub secrets.** In this repo's Settings → Secrets and variables →
-   Actions, add `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
-4. **First deploy.** Push to `main` (or run the workflow by hand from the
-   Actions tab). The worker appears in Workers & Pages.
-5. **Cloudflare Access.** In the worker's Settings → Domains & Routes, turn on
-   Cloudflare Access for the `workers.dev` route. That creates an Access
-   application covering all traffic. Then in Zero Trust → Access →
-   Applications, edit its policy:
-   - Action **Allow**, Include **Emails ending in** `@nesta.org.uk`.
-   - Login method: **One-time PIN** (on by default): a code is emailed to
-     the address entered.
+It needs ssh access to the server, through an `igl-website` alias in
+`~/.ssh/config`. It builds for the `/tools/prototypes/` path with the
+components page and analytics off (its `FLAGS` list, whatever `.env` says),
+copies `dist/` over with rsync, and adds `deploy/.htaccess` (the not-found
+page, and no caching of pages). It deploys only a clean, pushed, untagged
+commit, and asks for the next `v*` tag (`--tag=v1.2.3` to skip the question).
+`--force` skips the checks and the tag, to redeploy or try out uncommitted
+changes.
 
-   Zero Trust asks for a team name and a plan the first time; the free plan
-   covers up to 50 users. Check by opening the address in a private window:
-   you should get the Access login page, and a non-Nesta address should get
-   no code.
-6. **Later, Google login.** Zero Trust → Settings → Authentication → add
-   Google as a login method, then enable it on the application.
+To check what's live:
 
-Cloudflare's dashboard moves things around now and then; the names above are
-what to look for.
+```sh
+curl https://www.innovationgrowthlab.org/tools/prototypes/VERSION
+```
+
+Every valid URL must be a prerendered file: the server has no fallback to
+`index.html`.
 
 ## Later
 
 The data and its rules are kept separate from the page so these can be added
 without reworking it:
 
+- **Cloudflare Workers behind Cloudflare Access,** to limit the dashboard to
+  `@nesta.org.uk` addresses. A working set-up (a `wrangler.jsonc`, a GitHub
+  Actions deploy on push, and the Access steps in this README) is in commit
+  8051455: `git show 8051455 -- wrangler.jsonc .github README.md`.
+
 - **Editing from the live site:** commit `src/data/dashboard.json` (and
   thumbnails) through the GitHub API with a fine-grained token scoped to this
-  repo. The push deploys as above. `validateDashboard` in
+  repo, then deploy as above. `validateDashboard` in
   `src/lib/dashboard.js` is the check to run before committing.
 - **`npm run thumbs`:** Playwright screenshots of every `live` link into
   `public/thumbs/<link-id>.webp`. Figma thumbnails stay manual (paste or drop).
@@ -108,8 +107,9 @@ without reworking it:
 
 Each flag is `VITE_FLAG_<NAME>=on|off`, with its default in `src/flags.js` and
 a line in `.env.example`. Analytics is off by default: the dashboard is an
-internal page, and its visits aren't IGL website traffic. The deploy workflow
-sets the live site's flags itself.
+internal page, and its visits aren't IGL website traffic. `deploy.sh` sets
+the live site's flags itself (its `FLAGS` list), and writes them to
+`dist/VERSION`.
 
 `AGENTS.md` has the rest: where things are, the IGL palette and components,
 and how to check visual changes with before/after screenshots.

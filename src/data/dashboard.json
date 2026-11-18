@@ -3,7 +3,7 @@
     {
       "id": "irm",
       "name": "IRM",
-      "description": "Intergrated Readiness Matrix",
+      "description": "Integrated Readiness Matrix",
       "links": [
         {
           "id": "irm-tool",

@@ -4,8 +4,9 @@ One page listing IGL's prototypes by project, built on IGL's frontend
 boilerplate (Vite, React Router, Tailwind in the IGL brand, prerendered to
 static HTML). There is no backend: the content is `src/data/dashboard.json`
 plus images in `public/thumbs/`. It's edited only under `npm run dev`, through
-a dev-server middleware, and the live site (Cloudflare Workers, behind
-Cloudflare Access) is read-only. `README.md` covers set-up and editing for
+a dev-server middleware, and the live site
+(innovationgrowthlab.org/tools/prototypes, deployed by `deploy.sh`) is
+read-only. `README.md` covers set-up and editing for
 people; this file is what you need to work on the code.
 
 Many people working in these repos aren't frontend developers. Explain changes
@@ -65,8 +66,9 @@ fails, fix the code or add an ignore rule; don't skip the hooks with `--no-verif
 - **Never commit the Brown font files.** Brown is a commercial Lineto typeface
   and this repo is public; `.gitignore` excludes them. This tool doesn't use
   Brown (Mulish comes from `@fontsource-variable/mulish`).
-- **Ask before anything that publishes.** A push to `main` deploys the live
-  site, as does `wrangler deploy`. Use the `deploy` skill.
+- **Ask before anything that publishes.** `./deploy.sh` changes the live
+  site and pushes a tag; `git push` changes what others see. Use the `deploy`
+  skill.
 - **Editing is dev-only.** Anything that edits goes behind
   `import.meta.env.DEV` (`EDITABLE` in `src/pages/Dashboard.jsx`), so the
   build leaves it out. The data's rules (ids, types, one latest per type per
@@ -98,7 +100,7 @@ fails, fix the code or add an ignore rule; don't skip the hooks with `--no-verif
 - `src/entry-server.jsx`, `scripts/prerender.js`: prerendering; rarely need
   changing.
 - `scripts/screenshots.js`, `scripts/compare.js`: visual checks.
-- `wrangler.jsonc`, `.github/workflows/deploy.yml`: hosting and deploys.
+- `deploy.sh`, `deploy/.htaccess`: deploying to innovationgrowthlab.org.
 
 ## Feature flags
 
@@ -123,16 +125,17 @@ doesn't keep anything secret.
 - **Part of a page:** `flags.<name> && ...`. That code stays in the main
   bundle, skipped when the flag is off.
 
-`.github/workflows/deploy.yml` sets flags for the live site in its build
-step's `env`, whatever the `.env` files say. Use that for anything that must
-never be shown on the live site. The `add-flag` skill walks through it.
+`deploy.sh` forces flags for the live site in its `FLAGS` list, whatever the
+`.env` files say, and writes them to `dist/VERSION`. Use that for anything
+that must never be shown on the live site. The `add-flag` skill walks through
+it.
 
 ## Components
 
 `src/components/ui/` holds shadcn/ui components (`components.json`), on
 **Base UI** rather than Radix, restyled to the IGL design system. `/components`
-shows each one; it's behind the `componentsPage` flag, which the deploy
-workflow turns off for the live site.
+shows each one; it's behind the `componentsPage` flag, which `deploy.sh`
+turns off for the live site.
 
 - **Base UI, not Radix.** To make a trigger render as another component, use
   `render`, not `asChild`: `<DialogTrigger render={<Button variant="outline" />}>`.
@@ -177,20 +180,35 @@ style and needs restyling to match the others:
 then hydrates them. The dashboard's content is imported at build time, so the
 prerendered page has every card in it.
 
-Cloudflare Workers serves `dist/` as static assets (`wrangler.jsonc`: 404 page,
-trailing-slash redirects, no preview URLs) on its `*.workers.dev` address.
-`.github/workflows/deploy.yml` deploys every push to `main`, using the
-`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets.
-Cloudflare Access, set up in Cloudflare's dashboard rather than in this repo,
-lets in only `@nesta.org.uk` addresses (README, Hosting).
+The live site is on the IGL WordPress server (Apache) at
+`https://www.innovationgrowthlab.org/tools/prototypes/`. `./deploy.sh` builds
+for that path (`BASE`, passed to Vite as `VITE_BASE`), copies `dist/` to the
+server over ssh (`igl-website` alias in `~/.ssh/config`), and tags the
+release. It deploys only a clean, pushed, untagged commit. `--dry-run` builds
+and lists what would change without deploying or keeping the tag; `--force`
+skips the checks and the tag. Without a terminal it can't prompt for the tag,
+so pass `--tag=v1.2.3`. `deploy/.htaccess` is copied in with `BASE` filled
+in: it serves `404.html` for unknown paths (overriding WordPress's rewrites)
+and stops pages being cached. The live version is at
+`<site><BASE>VERSION`. Pushing to GitHub deploys nothing.
+
+Because of the sub-path, anything that builds a URL to a file in `public/`
+(thumbnails, say) prefixes it with `import.meta.env.BASE_URL`, as
+`src/components/dashboard/Thumb.jsx` does; React Router's links already do.
 
 There's no fallback to `index.html`: every valid URL must be a prerendered
 file.
 
+`VITE_VERSION` (tag and build time) is set by `deploy.sh` and readable as
+`import.meta.env.VITE_VERSION`; dev builds leave it unset.
+
+Cloudflare Workers behind Cloudflare Access is a possible later move (README,
+Later); commit 8051455 has that set-up.
+
 ## Analytics and cookies
 
-Off (`analytics` defaults to off in `src/flags.js`, and the deploy workflow
-forces it off): this is an internal page behind Access. The boilerplate's GA
+Off (`analytics` defaults to off in `src/flags.js`, and `deploy.sh` forces
+it off): this is an internal page. The boilerplate's GA
 and cookie banner code is still there (`src/lib/ga.js`, `CookieBanner`) should
 that change; turning it on brings back the banner and the footer's Cookie
 settings link.
@@ -219,4 +237,4 @@ person the relevant ones.
 ## Skills
 
 `.claude/skills/` has step-by-step recipes for the common requests: `add-page`,
-`add-flag` and `deploy` (Cloudflare).
+`add-flag` and `deploy` (`deploy.sh`).
