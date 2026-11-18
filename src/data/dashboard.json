@@ -6,35 +6,44 @@
       "description": "Integrated Readiness Matrix",
       "links": [
         {
+          "id": "irm-full-live-prototype",
+          "type": "live",
+          "title": "Full prototype",
+          "url": "https://igl-irm.vercel.app/",
+          "updated": "2026-11-18",
+          "latest": true,
+          "thumb": "thumbs/irm-full-live-prototype.webp"
+        },
+        {
           "id": "irm-tool",
           "type": "live",
           "url": "https://www.innovationgrowthlab.org/tools/irm/",
           "updated": "2026-11-17",
-          "latest": true,
-          "thumb": "thumbs/irm-tool.webp"
-        },
-        {
-          "id": "irm-prototype-explorations",
-          "type": "live",
-          "title": "Prototype explorations",
-          "url": "https://igl-irm-prototype.vercel.app/",
-          "updated": "2026-11-17",
           "latest": false,
-          "thumb": "thumbs/irm-prototype-explorations.webp"
-        },
-        {
-          "id": "irm-designs",
-          "type": "figma-design",
-          "url": "https://www.figma.com/design/OfB8wCJ01zTKzhREAQkCE0/IRM?node-id=19-26&t=jEKxijF3N3rD1HIl-1",
-          "updated": "2026-11-17",
-          "latest": false
+          "thumb": "thumbs/irm-tool.webp"
         },
         {
           "id": "irm-clickable-prototype",
           "type": "figma-proto",
           "url": "https://www.figma.com/proto/OfB8wCJ01zTKzhREAQkCE0/IRM?node-id=639-1554&p=f&viewport=363%2C96%2C0.03&t=IQabPPPThPCD4Yw8-1&scaling=min-zoom&content-scaling=fixed&page-id=19%3A26&show-proto-sidebar=1",
-          "updated": "2026-11-17",
+          "updated": "2026-11-01",
           "latest": false
+        },
+        {
+          "id": "irm-designs",
+          "type": "figma-design",
+          "url": "https://www.figma.com/design/OfB8wCJ01zTKzhREAQkCE0/IRM?node-id=19-26&t=jEKxijF3N3rD1HIl-1",
+          "updated": "2026-11-01",
+          "latest": false
+        },
+        {
+          "id": "irm-prototype-explorations",
+          "type": "live",
+          "title": "Early explorations",
+          "url": "https://igl-irm-prototype.vercel.app/",
+          "updated": "2026-10-15",
+          "latest": false,
+          "thumb": "thumbs/irm-prototype-explorations.webp"
         }
       ]
     },
