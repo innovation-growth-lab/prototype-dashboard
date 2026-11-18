@@ -24,7 +24,7 @@ npm run lint       # Biome; lefthook also formats on commit and lints on push
 
 Editing only exists under `npm run dev`. Open http://localhost:5173 and:
 
-- **Add link** (top right, or on a project) opens the link dialog: the link,
+- **Add link** on a project opens the link dialog: the link,
   its type, a title (optional: without one, the card is named by its type,
   "Figma design"), its project, the date it was last updated (today unless
   you change it), whether it's the latest, and a thumbnail.
@@ -56,6 +56,28 @@ git push
 
 Which projects a visitor has collapsed is kept in their own browser, not in
 the file.
+
+## Sharing links
+
+To point someone at particular links, press **Share** (top right, on the
+live site too), tick the links (click anywhere on a card), and press **Done**.
+The dialog gives the address to copy, with your name if you add it (your
+browser remembers it). The address is for wherever the page is open, so under
+`npm run dev` it's a localhost one: share from the live site.
+
+The address is just the links' ids (the `id` of each link in
+`src/data/dashboard.json`) and the name, so it can also be written by hand:
+
+```
+https://www.innovationgrowthlab.org/tools/prototypes/?shared=irm-tool,irm-designs&from=Kevin
+```
+
+The page then says "Kevin shared 2 links with you", outlines those links,
+fades the rest, and opens only the projects they're in. **Show everything**
+goes back to the whole dashboard. Without `from`, it says "2 links were shared
+with you". Ids that aren't on the dashboard any more are skipped. A link keeps
+its id when it's edited or moved to another project, so shared addresses keep
+working.
 
 ## Hosting
 

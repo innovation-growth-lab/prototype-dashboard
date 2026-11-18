@@ -81,7 +81,10 @@ fails, fix the code or add an ignore rule; don't skip the hooks with `--no-verif
 ## Where things are
 
 - `src/data/dashboard.json`: the content. `public/thumbs/`: its thumbnails.
-- `src/pages/Dashboard.jsx`: the page, its editor state, drag and drop.
+- `src/pages/Dashboard.jsx`: the page, its editor state, drag and drop, and
+  the shared view (`?shared=<link ids>&from=<name>`, `useShared`) and
+  picking links to share (`useSharePicker`, `ShareDialog`; README, Sharing
+  links). Share is on the live site too, unlike editing.
 - `src/components/dashboard/`: project sections and cards, the link and
   project dialogs, the move menu, the link types' icons and colours.
 - `src/lib/dashboard.js`: the data's shape, validation and edits (pure JS).

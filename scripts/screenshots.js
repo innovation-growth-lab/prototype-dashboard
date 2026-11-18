@@ -40,6 +40,28 @@ const click = (p, name) =>
 // consent: null leaves the cookie question unanswered, so the banner shows.
 const STATES = {
   'not-found': {path: '/no-such-page'},
+  // A shared view: two links highlighted, then one with no sharer's name.
+  shared: {path: '/?shared=irm-tool,irm-prototype-explorations&from=Kevin'},
+  'shared-anonymous': {path: '/?shared=peat-tool'},
+  // Picking links to share, two picked; then the dialog with the address.
+  'share-picking': {
+    path: '/',
+    steps: [
+      (p) => click(p, 'Share'),
+      (p) => p.getByRole('checkbox').nth(0).click(),
+      (p) => p.getByText('Figma design').first().click(),
+    ],
+  },
+  'share-dialog': {
+    path: '/',
+    steps: [
+      (p) => click(p, 'Share'),
+      (p) => p.getByRole('checkbox').nth(0).click(),
+      (p) => p.getByText('Figma design').first().click(),
+      (p) => click(p, 'Done'),
+      (p) => p.getByLabel(/Your name/).fill('Kevin'),
+    ],
+  },
   // The dashboard's editor (needs the dev server: the build has no editing).
   'add-link': {path: '/', steps: [(p) => click(p, 'Add link')]},
   'edit-link': {

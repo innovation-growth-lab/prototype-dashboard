@@ -1,8 +1,11 @@
-import {Plus} from 'lucide-react';
+import {Plus, Share} from 'lucide-react';
 import {useEffect, useRef, useState} from 'react';
+import {useLocation, useNavigate} from 'react-router';
 import {LinkDialog} from '@/components/dashboard/LinkDialog.jsx';
 import {ProjectDialog} from '@/components/dashboard/ProjectDialog.jsx';
 import {ProjectSection} from '@/components/dashboard/ProjectSection.jsx';
+import {ShareDialog} from '@/components/dashboard/ShareDialog.jsx';
+import {SharedBanner} from '@/components/dashboard/SharedBanner.jsx';
 import {Button} from '@/components/ui/button';
 import {Container} from '@/components/ui/container';
 import {Dialog} from '@/components/ui/dialog';
@@ -31,8 +34,16 @@ export default function Dashboard() {
   // by hand does.
   const [data, setData] = useState(initial);
 
-  const [collapsed, toggle] = useCollapsed();
+  const [saved, toggleSaved] = useCollapsed();
+  const shared = useShared(data);
+  // A shared view opens only the projects with shared links, and leaves the
+  // visitor's own collapsed projects as they were.
+  const [collapsed, toggle] = shared
+    ? [shared.collapsed, shared.toggle]
+    : [saved, toggleSaved];
   const editor = useEditor(data, setData);
+  const picker = useSharePicker(data);
+  const selecting = picker.selecting;
   const links = data.projects.reduce((n, p) => n + p.links.length, 0);
   const empty = data.projects.length === 0;
 
@@ -53,16 +64,36 @@ export default function Dashboard() {
               designs, and other prototype related resources.
             </p>
           </div>
-          {EDITABLE && !empty && (
-            <div className="flex flex-wrap gap-2">
-              <Button variant="outline" onClick={editor.newProject}>
-                <Plus /> New project
-              </Button>
-              <Button onClick={() => editor.addLink(null)}>
-                <Plus /> Add link
-              </Button>
-            </div>
-          )}
+          {!empty &&
+            (selecting ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <p aria-live="polite" className="mr-2 text-[15px] text-ink-500">
+                  {picker.selected.size
+                    ? `${plural(picker.selected.size, 'link')} selected`
+                    : 'Select the links to share'}
+                </p>
+                <Button variant="outline" onClick={picker.cancel}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={picker.done}
+                  disabled={picker.selected.size === 0}
+                >
+                  Done
+                </Button>
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {EDITABLE && (
+                  <Button variant="outline" onClick={editor.newProject}>
+                    <Plus /> New project
+                  </Button>
+                )}
+                <Button onClick={() => picker.start(shared?.ids)}>
+                  <Share /> Share
+                </Button>
+              </div>
+            ))}
         </header>
 
         {editor.error && (
@@ -74,6 +105,14 @@ export default function Dashboard() {
           </p>
         )}
 
+        {shared && !selecting && (
+          <SharedBanner
+            count={shared.ids.size}
+            from={shared.from}
+            onShowAll={shared.clear}
+          />
+        )}
+
         <div className="flex flex-col gap-10">
           {data.projects.map((project, i) => (
             <ProjectSection
@@ -83,12 +122,23 @@ export default function Dashboard() {
               count={data.projects.length}
               collapsed={collapsed.has(project.id)}
               onToggle={() => toggle(project.id)}
-              editor={EDITABLE ? editor : null}
+              shared={selecting ? picker.selected : (shared?.ids ?? null)}
+              onSelect={selecting ? picker.toggle : null}
+              editor={EDITABLE && !selecting ? editor : null}
             />
           ))}
           {empty && <EmptyState onCreate={EDITABLE && editor.newProject} />}
         </div>
       </Container>
+
+      <Dialog
+        open={picker.dialogOpen}
+        onOpenChange={(open) => !open && picker.cancel()}
+      >
+        {picker.dialogOpen && (
+          <ShareDialog ids={picker.ordered} onBack={picker.back} />
+        )}
+      </Dialog>
 
       {EDITABLE && (
         <Dialog
@@ -156,6 +206,108 @@ function useCollapsed() {
     });
   }
   return [collapsed, toggle];
+}
+
+// A shared view: the page opened as /?shared=irm-tool,irm-designs&from=Kevin
+// highlights those links (by their ids in dashboard.json) and dims the rest.
+// `shared` can also be repeated (?shared=irm-tool&shared=irm-designs); `from`
+// is optional. Ids that aren't on the dashboard are skipped, and with none
+// left it's the ordinary page. Read after hydration, as the prerendered page
+// has no query.
+//
+// Returns null, or {ids, from, collapsed, toggle, clear}: the shared link ids,
+// the sharer's name or null, which projects are collapsed (at first, those
+// without a shared link; toggling isn't saved) and a way back to everything.
+function useShared(data) {
+  const {search} = useLocation();
+  const navigate = useNavigate();
+  const [query, setQuery] = useState(null);
+  // Projects opened or closed by hand, since the query last changed.
+  const [toggled, setToggled] = useState(() => new Set());
+  useEffect(() => {
+    setQuery(readSharedQuery(search));
+    setToggled(new Set());
+  }, [search]);
+
+  if (!query) return null;
+  const ids = new Set(
+    data.projects.flatMap((p) =>
+      p.links.filter((l) => query.ids.has(l.id)).map((l) => l.id),
+    ),
+  );
+  if (ids.size === 0) return null;
+  const collapsed = new Set(
+    data.projects
+      .filter((p) => p.links.some((l) => ids.has(l.id)) === toggled.has(p.id))
+      .map((p) => p.id),
+  );
+  return {
+    ids,
+    from: query.from,
+    collapsed,
+    toggle(id) {
+      setToggled((prev) => {
+        const next = new Set(prev);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        return next;
+      });
+    },
+    // A new history entry, so Back returns to the shared view.
+    clear: () => navigate({search: ''}),
+  };
+}
+
+function readSharedQuery(search) {
+  const params = new URLSearchParams(search);
+  const ids = new Set(
+    params
+      .getAll('shared')
+      .flatMap((v) => v.split(','))
+      .map((id) => id.trim())
+      .filter(Boolean),
+  );
+  if (ids.size === 0) return null;
+  const from = params.get('from')?.trim().slice(0, 40) || null;
+  return {ids, from};
+}
+
+// Picking links to share: Share turns the cards into checkboxes, Done opens
+// the dialog with the address. Closing the dialog ends it; Change selection
+// goes back to picking.
+function useSharePicker(data) {
+  const [selecting, setSelecting] = useState(false);
+  const [selected, setSelected] = useState(() => new Set());
+  const [dialogOpen, setDialogOpen] = useState(false);
+  return {
+    selecting,
+    selected,
+    dialogOpen,
+    // In the order they're on the page, for a tidy address.
+    ordered: data.projects.flatMap((p) =>
+      p.links.filter((l) => selected.has(l.id)).map((l) => l.id),
+    ),
+    // `initial`: the links already shared in this view, if any.
+    start(initial) {
+      setSelected(new Set(initial ?? []));
+      setSelecting(true);
+    },
+    toggle(id) {
+      setSelected((prev) => {
+        const next = new Set(prev);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        return next;
+      });
+    },
+    done: () => setDialogOpen(true),
+    back: () => setDialogOpen(false),
+    cancel() {
+      setDialogOpen(false);
+      setSelecting(false);
+      setSelected(new Set());
+    },
+  };
 }
 
 // Everything the editor does: saving, the dialogs, moves and drag and drop.

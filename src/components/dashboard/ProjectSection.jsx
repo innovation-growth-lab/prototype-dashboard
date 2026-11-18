@@ -1,6 +1,7 @@
 import {cn} from 'cn';
 import {ChevronDown, GripVertical, Pencil, Plus} from 'lucide-react';
 import {Button} from '@/components/ui/button';
+import {Checkbox} from '@/components/ui/checkbox';
 import {formatDate} from '../../lib/dashboard.js';
 import {MoveMenu} from './MoveMenu.jsx';
 import {Thumb, thumbSrc} from './Thumb.jsx';
@@ -15,12 +16,17 @@ const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 // One project: its heading, then its links as a grid of cards. `editor` is
 // null on the live site, which is read-only; under `npm run dev` it carries
 // the edit actions and the drag-and-drop state (src/pages/Dashboard.jsx).
+// `shared` is the set of link ids to outline (null for none): those in a
+// shared link, or those picked to share. While picking, `onSelect(linkId)`
+// toggles one, and the cards are checkboxes.
 export function ProjectSection({
   project,
   index,
   count,
   collapsed,
   onToggle,
+  shared,
+  onSelect,
   editor: editorProp,
 }) {
   // Checked here as well, so the build leaves the editing parts out.
@@ -156,6 +162,8 @@ export function ProjectSection({
               link={link}
               project={project}
               index={i}
+              shared={shared}
+              onSelect={onSelect}
               editor={editor}
             />
           ))}
@@ -189,17 +197,32 @@ export function ProjectSection({
 }
 
 // A link: its picture, then its title (or, without one, its type) and date.
-function LinkCard({link, project, index, editor: editorProp}) {
+// In a shared view, or while picking links to share, the shared or picked
+// links are outlined and the others are faded until pointed at or focused.
+// While picking, the whole card is the checkbox's label, so clicking anywhere
+// on it picks it rather than opening the link.
+function LinkCard({
+  link,
+  project,
+  index,
+  shared,
+  onSelect,
+  editor: editorProp,
+}) {
   const editor = import.meta.env.DEV ? editorProp : null;
   const t = typeOf(link.type);
   const dnd = editor?.dnd;
   const dragging = dnd?.drag?.kind === 'card' && dnd.drag.id === link.id;
   const over = dnd?.over?.kind === 'card' && dnd.over.id === link.id;
   const label = linkLabel(link, project);
+  const highlighted = shared?.has(link.id);
+  const faded = shared && !highlighted;
   return (
     <div
       className={cn(
         'group/card relative flex min-w-0 flex-col rounded-lg',
+        faded &&
+          'opacity-40 transition-opacity hover:opacity-100 focus-within:opacity-100',
         dragging && 'opacity-40',
         over && 'outline-2 outline-offset-[6px] outline-blue outline-dashed',
       )}
@@ -210,10 +233,9 @@ function LinkCard({link, project, index, editor: editorProp}) {
         ...dnd.cardTarget(project.id, link.id),
       })}
     >
-      <a
-        href={link.url}
-        target="_blank"
-        rel="noopener noreferrer"
+      <CardTarget
+        link={link}
+        picking={Boolean(onSelect)}
         draggable={editor ? false : undefined}
         className="flex flex-col gap-3 rounded-lg text-inherit no-underline"
       >
@@ -222,15 +244,31 @@ function LinkCard({link, project, index, editor: editorProp}) {
           src={thumbSrc(link.thumb)}
           url={link.url}
           latest={link.latest}
-          className="transition-colors group-hover/card:border-blue-60"
-        />
+          className={cn(
+            'transition-colors',
+            highlighted
+              ? 'border-2 border-dark-blue'
+              : 'group-hover/card:border-blue-60',
+          )}
+        >
+          {onSelect && (
+            <Checkbox
+              checked={highlighted}
+              onCheckedChange={() => onSelect(link.id)}
+              className="absolute top-2.5 right-2.5 size-6 bg-white shadow-[0_1px_2px_rgb(9_38_64/0.2)]"
+            />
+          )}
+        </Thumb>
         <div className="flex min-w-0 items-start gap-2.5">
           <TypeChip type={link.type} />
           <span className="flex min-w-0 flex-col gap-0.5">
             <span className="text-[15px] leading-snug font-bold text-dark-blue [overflow-wrap:anywhere] group-hover/card:text-blue">
               {link.title || t.label}
               <span className="sr-only">
-                {link.title ? '' : `, ${project.name}`} (opens in a new tab)
+                {link.title ? '' : `, ${project.name}`}
+                {onSelect
+                  ? ''
+                  : `${highlighted ? ', shared with you' : ''} (opens in a new tab)`}
               </span>
             </span>
             <span className="text-[13px] leading-snug text-ink-500">
@@ -239,7 +277,7 @@ function LinkCard({link, project, index, editor: editorProp}) {
             </span>
           </span>
         </div>
-      </a>
+      </CardTarget>
       {editor && (
         // On the thumbnail's corner, shown on hover, on keyboard focus, and
         // while the move menu is open.
@@ -274,5 +312,23 @@ function LinkCard({link, project, index, editor: editorProp}) {
         </div>
       )}
     </div>
+  );
+}
+
+// What a card's picture and title sit in: a link to open, or while picking
+// links to share, the label of the card's checkbox.
+function CardTarget({link, picking, children, ...props}) {
+  if (picking) {
+    return (
+      // biome-ignore lint/a11y/noLabelWithoutControl: the Checkbox inside is the control.
+      <label {...props} className={cn(props.className, 'cursor-pointer')}>
+        {children}
+      </label>
+    );
+  }
+  return (
+    <a href={link.url} target="_blank" rel="noopener noreferrer" {...props}>
+      {children}
+    </a>
   );
 }
