@@ -41,6 +41,7 @@
     {
       "id": "peat",
       "name": "PEAT",
+      "description": "Policy Expectation Alignment Tool",
       "links": [
         {
           "id": "peat-tool",
