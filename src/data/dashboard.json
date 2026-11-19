@@ -1,6 +1,50 @@
 {
   "projects": [
     {
+      "id": "peat",
+      "name": "PEAT",
+      "description": "Policy Expectation Alignment Tool",
+      "links": [
+        {
+          "id": "peat-tool",
+          "type": "live",
+          "title": "Tool (no backend yet)",
+          "url": "https://www.innovationgrowthlab.org/tools/peat/",
+          "updated": "2026-11-17",
+          "latest": false,
+          "thumb": "thumbs/peat-tool.webp"
+        },
+        {
+          "id": "peat-designs",
+          "type": "figma-design",
+          "url": "https://www.figma.com/design/koEqOVm0leYDxqwLpNRNgh/PEAT?node-id=0-1&t=YIhA2GN3OyixzGcP-1",
+          "updated": "2026-11-17",
+          "latest": false
+        }
+      ]
+    },
+    {
+      "id": "experimental-kit",
+      "name": "Experimental Kit",
+      "links": [
+        {
+          "id": "experimental-kit-live",
+          "type": "live",
+          "url": "https://www.innovationgrowthlab.org/tools/experimental-kit/",
+          "updated": "2026-11-19",
+          "latest": true,
+          "thumb": "thumbs/experimental-kit-live.webp"
+        },
+        {
+          "id": "experimental-kit-figma-design",
+          "type": "figma-design",
+          "url": "https://www.figma.com/design/7BRKkMmtMdwl1Jso3xmjUI/Experimental-Kit?node-id=0-1&t=6vJ9cjRMaFtA1Wpy-1",
+          "updated": "2026-11-13",
+          "latest": false
+        }
+      ]
+    },
+    {
       "id": "irm",
       "name": "IRM",
       "description": "Integrated Readiness Matrix",
@@ -44,29 +88,6 @@
           "updated": "2026-10-15",
           "latest": false,
           "thumb": "thumbs/irm-prototype-explorations.webp"
-        }
-      ]
-    },
-    {
-      "id": "peat",
-      "name": "PEAT",
-      "description": "Policy Expectation Alignment Tool",
-      "links": [
-        {
-          "id": "peat-tool",
-          "type": "live",
-          "title": "Tool (no backend yet)",
-          "url": "https://www.innovationgrowthlab.org/tools/peat/",
-          "updated": "2026-11-17",
-          "latest": false,
-          "thumb": "thumbs/peat-tool.webp"
-        },
-        {
-          "id": "peat-designs",
-          "type": "figma-design",
-          "url": "https://www.figma.com/design/koEqOVm0leYDxqwLpNRNgh/PEAT?node-id=0-1&t=YIhA2GN3OyixzGcP-1",
-          "updated": "2026-11-17",
-          "latest": false
         }
       ]
     }
