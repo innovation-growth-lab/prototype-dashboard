@@ -90,6 +90,20 @@
           "thumb": "thumbs/irm-prototype-explorations.webp"
         }
       ]
+    },
+    {
+      "id": "funding-tracker",
+      "name": "Funding Tracker",
+      "links": [
+        {
+          "id": "funding-tracker-live",
+          "type": "live",
+          "url": "https://mngyuan.github.io/igl-funding-tracker/",
+          "updated": "2026-10-12",
+          "latest": true,
+          "thumb": "thumbs/funding-tracker-live.webp"
+        }
+      ]
     }
   ]
 }
