@@ -8,10 +8,9 @@
         {
           "id": "peat-tool",
           "type": "live",
-          "title": "Tool (no backend yet)",
           "url": "https://www.innovationgrowthlab.org/tools/peat/",
-          "updated": "2026-11-17",
-          "latest": false,
+          "updated": "2026-11-25",
+          "latest": true,
           "thumb": "thumbs/peat-tool.webp"
         },
         {
